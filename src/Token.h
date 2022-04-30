@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include "TokenType.h"
 
@@ -8,6 +10,7 @@ public:
   uint start, end;
   uint line;
 
+  Token();
   Token(TokenType type, std::string&& value, uint start, uint end, uint line);
   ~Token();
 
