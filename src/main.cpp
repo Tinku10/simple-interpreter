@@ -30,8 +30,9 @@ int main() {
 
   Lexer lexer(source);
   Parser parser(lexer);
-  Visitor visitor;
+  NodeVisitor visitor;
+  SymbolTableVisitor symbol_visitor;
 
-  Interpreter interpreter(parser, visitor);
+  Interpreter interpreter(parser, visitor, symbol_visitor);
   interpreter.interpret();
 }

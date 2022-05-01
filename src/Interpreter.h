@@ -3,9 +3,10 @@
 class Interpreter {
 public:
   Parser parser;
-  Visitor visitor;
+  NodeVisitor visitor;
+  SymbolTableVisitor symbol_visitor;
 
-  Interpreter(Parser& parser, Visitor& visitor);
+  Interpreter(Parser& parser, NodeVisitor& visitor, SymbolTableVisitor& symbol_visitor);
 
   void interpret();
 };

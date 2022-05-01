@@ -2,13 +2,16 @@
 
 #include "CallStack.h"
 #include "Token.h"
+#include "SymbolTable.h"
 
-class Visitor;
+class NodeVisitor;
+class SymbolTableVisitor;
 
 class Node {
  public:
   Token token;
-  virtual void accept(Visitor& v) = 0;
+  virtual void accept(NodeVisitor& v) = 0;
+  virtual void accept(SymbolTableVisitor& v) = 0;
 };
 
 class BinaryNode : public Node {
@@ -21,7 +24,8 @@ class BinaryNode : public Node {
              Token token,
              std::shared_ptr<Node> right);
 
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class UnaryNode : public Node {
@@ -30,7 +34,8 @@ class UnaryNode : public Node {
   Token token;
 
   UnaryNode(std::shared_ptr<Node> node, Token token);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class AssignNode : public Node {
@@ -42,7 +47,8 @@ class AssignNode : public Node {
   AssignNode(std::shared_ptr<Node> left,
              Token token,
              std::shared_ptr<Node> right);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class VarNode : public Node {
@@ -50,7 +56,8 @@ class VarNode : public Node {
   Token token;
 
   VarNode(Token token);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class LiteralNode : public Node {
@@ -58,7 +65,8 @@ class LiteralNode : public Node {
   Token token;
 
   LiteralNode(Token token);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class CompoundNode : public Node {
@@ -67,7 +75,8 @@ class CompoundNode : public Node {
   std::vector<std::shared_ptr<Node>> children;
 
   CompoundNode(std::vector<std::shared_ptr<Node>> children);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class ProgramNode : public Node {
@@ -75,7 +84,8 @@ class ProgramNode : public Node {
   std::shared_ptr<Node> child;
 
   ProgramNode(std::shared_ptr<Node> child);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class BlockNode : public Node {
@@ -85,7 +95,8 @@ class BlockNode : public Node {
 
   BlockNode(std::vector<std::shared_ptr<Node>> declarations,
             std::shared_ptr<Node> compound_statement);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class VarDeclNode : public Node {
@@ -94,7 +105,8 @@ class VarDeclNode : public Node {
   std::shared_ptr<Node> type;
 
   VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class TypeNode : public Node {
@@ -102,29 +114,65 @@ class TypeNode : public Node {
   Token token;
 
   TypeNode(Token token);
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class NoOpNode : public Node {
  public:
-  void accept(Visitor& v) override;
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class Visitor {
+ public:
+  virtual void visit(BinaryNode& node) = 0;
+  virtual void visit(UnaryNode& node) = 0;
+  virtual void visit(AssignNode& node) = 0;
+  virtual void visit(LiteralNode& node) = 0;
+  virtual void visit(VarNode& node) = 0;
+  virtual void visit(CompoundNode& node) = 0;
+  virtual void visit(ProgramNode& node) = 0;
+  virtual void visit(BlockNode& node) = 0;
+  virtual void visit(VarDeclNode& node) = 0;
+  virtual void visit(TypeNode& node) = 0;
+  virtual void visit(NoOpNode& node) = 0;
+};
+
+class NodeVisitor : public Visitor {
  public:
   int value;
   std::string name;
 
   CallStack callstack;
-  void visit(BinaryNode& node);
-  void visit(UnaryNode& node);
-  void visit(AssignNode& node);
-  void visit(LiteralNode& node);
-  void visit(VarNode& node);
-  void visit(CompoundNode& node);
-  void visit(ProgramNode& node);
-  void visit(BlockNode& node);
-  void visit(VarDeclNode& node);
-  void visit(TypeNode& node);
-  void visit(NoOpNode& node);
+  void visit(BinaryNode& node) override;
+  void visit(UnaryNode& node) override;
+  void visit(AssignNode& node) override;
+  void visit(LiteralNode& node) override;
+  void visit(VarNode& node) override;
+  void visit(CompoundNode& node) override;
+  void visit(ProgramNode& node) override;
+  void visit(BlockNode& node) override;
+  void visit(VarDeclNode& node) override;
+  void visit(TypeNode& node) override;
+  void visit(NoOpNode& node) override;
+};
+
+class SymbolTableVisitor : public Visitor {
+ public:
+  int value;
+  std::string name;
+  SymbolTable symbols;
+
+  void visit(BinaryNode& node) override;
+  void visit(UnaryNode& node) override;
+  void visit(AssignNode& node) override;
+  void visit(LiteralNode& node) override;
+  void visit(VarNode& node) override;
+  void visit(CompoundNode& node) override;
+  void visit(ProgramNode& node) override;
+  void visit(BlockNode& node) override;
+  void visit(VarDeclNode& node) override;
+  void visit(TypeNode& node) override;
+  void visit(NoOpNode& node) override;
 };

@@ -121,11 +121,11 @@ std::shared_ptr<Node> Parser::type() {
 std::vector<std::shared_ptr<Node>> Parser::var_declaration() {
   std::vector<std::shared_ptr<Node>> v;
 
-  v.push_back(factor());
+  v.emplace_back(factor());
 
   while (current_token.type == TokenType::COMMA) {
     eat(current_token.type);
-    v.push_back(factor());
+    v.emplace_back(factor());
   }
 
   eat(TokenType::COLON);

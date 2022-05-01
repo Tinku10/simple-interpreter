@@ -9,8 +9,11 @@ add_executable(${PROJECT_NAME}
   src/Token.cpp
   src/Lexer.cpp
   src/Parser.cpp
-  src/Visitor.cpp
+  src/NodeVisitor.cpp
+  src/SymbolTableVisitor.cpp
   src/Interpreter.cpp
+  src/SymbolTable.cpp
+  src/Symbol.cpp
 )
 # generate compiler commands to help clangd find include paths
 # even if not set, there is no error in compilation and linking but neovim diagnostics shows error

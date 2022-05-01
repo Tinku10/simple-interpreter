@@ -41,51 +41,51 @@ VarDeclNode::VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
 
 TypeNode::TypeNode(Token token) : token(token) {}
 
-void BinaryNode::accept(Visitor& v) {
+void BinaryNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void UnaryNode::accept(Visitor& v) {
+void UnaryNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void AssignNode::accept(Visitor& v) {
+void AssignNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void VarNode::accept(Visitor& v) {
+void VarNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void LiteralNode::accept(Visitor& v) {
+void LiteralNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void CompoundNode::accept(Visitor& v) {
+void CompoundNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void ProgramNode::accept(Visitor& v) {
+void ProgramNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void BlockNode::accept(Visitor& v) {
+void BlockNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void VarDeclNode::accept(Visitor& v) {
+void VarDeclNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void TypeNode::accept(Visitor& v) {
+void TypeNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void NoOpNode::accept(Visitor& v) {
+void NoOpNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
-void Visitor::visit(BinaryNode& node) {
+void NodeVisitor::visit(BinaryNode& node) {
   node.left->accept(*this);
   int left = value;
   node.right->accept(*this);
@@ -102,7 +102,7 @@ void Visitor::visit(BinaryNode& node) {
 
 }
 
-void Visitor::visit(UnaryNode& node) {
+void NodeVisitor::visit(UnaryNode& node) {
   node.node->accept(*this);
   switch (node.token.type) {
     case TokenType::PLUS: value = value; break;
@@ -111,7 +111,7 @@ void Visitor::visit(UnaryNode& node) {
   }
 }
 
-void Visitor::visit(VarNode& node) {
+void NodeVisitor::visit(VarNode& node) {
   name = node.token.value;
   if (callstack.cache.count(name))
     value = callstack.cache.at(name);
@@ -121,7 +121,7 @@ void Visitor::visit(VarNode& node) {
   /* throw std::invalid_argument("Undeclared identifier"); */
 }
 
-void Visitor::visit(AssignNode& node) {
+void NodeVisitor::visit(AssignNode& node) {
   node.left->accept(*this);
   std::string left = name;
   node.right->accept(*this);
@@ -131,22 +131,22 @@ void Visitor::visit(AssignNode& node) {
   std::cout << left << " = " << right << "\n";
 }
 
-void Visitor::visit(LiteralNode& node) {
+void NodeVisitor::visit(LiteralNode& node) {
   // int type only for now
   value = stoi(node.token.value);
 }
 
-void Visitor::visit(CompoundNode& node) {
+void NodeVisitor::visit(CompoundNode& node) {
   for (auto& child : node.children) {
     child->accept(*this);
   }
 }
 
-void Visitor::visit(ProgramNode& node) {
+void NodeVisitor::visit(ProgramNode& node) {
   node.child->accept(*this);
 }
 
-void Visitor::visit(BlockNode& node) {
+void NodeVisitor::visit(BlockNode& node) {
   for(auto& child: node.declarations) {
     child->accept(*this);
   }
@@ -154,14 +154,14 @@ void Visitor::visit(BlockNode& node) {
   node.compound_statement->accept(*this);
 }
 
-void Visitor::visit(VarDeclNode& node) {
+void NodeVisitor::visit(VarDeclNode& node) {
   return;
 }
 
-void Visitor::visit(TypeNode& node) {
+void NodeVisitor::visit(TypeNode& node) {
   return;
 }
 
-void Visitor::visit(NoOpNode& node) {
+void NodeVisitor::visit(NoOpNode& node) {
   return;
 }
