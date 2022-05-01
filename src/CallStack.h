@@ -1,5 +1,5 @@
-#include <unordered_map>
+#include <map>
 class CallStack {
 public:
-  std::unordered_map<std::string, int> cache;
+  std::map<std::string, int> cache;
 };

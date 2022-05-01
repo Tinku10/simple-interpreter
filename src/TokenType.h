@@ -10,10 +10,14 @@ enum struct TokenType {
   MINUS,
   MULTIPLY,
   DIVIDE,
+  INT_DIV,
+  FLOAT_DIV,
   LESS_THAN,
   GREATER_THAN,
   ENDOFFILE,
   SEMI,
+  COMMA,
+  COLON,
 
   NOT_EQUAL,
   GT_EQUAL,
@@ -23,6 +27,10 @@ enum struct TokenType {
   ID,
   NUMBER,
   STRING,
+  INTEGER,
+  REAL,
+  INTEGER_CONST,
+  REAL_CONST,
 
   IF,
   ELSE,
@@ -32,5 +40,7 @@ enum struct TokenType {
 
   BEGIN,
   END,
-  DOT
+  DOT,
+  PROGRAM,
+  VAR
 };

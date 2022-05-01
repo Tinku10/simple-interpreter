@@ -1,7 +1,7 @@
 #include <vector>
 
-#include "Token.h"
 #include "CallStack.h"
+#include "Token.h"
 
 class Visitor;
 
@@ -70,8 +70,43 @@ class CompoundNode : public Node {
   void accept(Visitor& v) override;
 };
 
+class ProgramNode : public Node {
+ public:
+  std::shared_ptr<Node> child;
+
+  ProgramNode(std::shared_ptr<Node> child);
+  void accept(Visitor& v) override;
+};
+
+class BlockNode : public Node {
+ public:
+  std::vector<std::shared_ptr<Node>> declarations;
+  std::shared_ptr<Node> compound_statement;
+
+  BlockNode(std::vector<std::shared_ptr<Node>> declarations,
+            std::shared_ptr<Node> compound_statement);
+  void accept(Visitor& v) override;
+};
+
+class VarDeclNode : public Node {
+ public:
+  std::shared_ptr<Node> var;
+  std::shared_ptr<Node> type;
+
+  VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type);
+  void accept(Visitor& v) override;
+};
+
+class TypeNode : public Node {
+ public:
+  Token token;
+
+  TypeNode(Token token);
+  void accept(Visitor& v) override;
+};
+
 class NoOpNode : public Node {
-public:
+ public:
   void accept(Visitor& v) override;
 };
 
@@ -87,5 +122,9 @@ class Visitor {
   void visit(LiteralNode& node);
   void visit(VarNode& node);
   void visit(CompoundNode& node);
+  void visit(ProgramNode& node);
+  void visit(BlockNode& node);
+  void visit(VarDeclNode& node);
+  void visit(TypeNode& node);
   void visit(NoOpNode& node);
 };

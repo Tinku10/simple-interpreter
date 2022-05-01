@@ -28,6 +28,19 @@ CompoundNode::CompoundNode(std::vector<std::shared_ptr<Node>> children)
     : children(children) {
 }
 
+ProgramNode::ProgramNode(std::shared_ptr<Node> child) : child(child) {
+}
+
+BlockNode::BlockNode(std::vector<std::shared_ptr<Node>> declarations,
+                     std::shared_ptr<Node> compound_statement)
+    : declarations(declarations), compound_statement(compound_statement) {
+}
+
+VarDeclNode::VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
+  : var(var), type(type) {}
+
+TypeNode::TypeNode(Token token) : token(token) {}
+
 void BinaryNode::accept(Visitor& v) {
   v.visit(*this);
 }
@@ -52,6 +65,22 @@ void CompoundNode::accept(Visitor& v) {
   v.visit(*this);
 }
 
+void ProgramNode::accept(Visitor& v) {
+  v.visit(*this);
+}
+
+void BlockNode::accept(Visitor& v) {
+  v.visit(*this);
+}
+
+void VarDeclNode::accept(Visitor& v) {
+  v.visit(*this);
+}
+
+void TypeNode::accept(Visitor& v) {
+  v.visit(*this);
+}
+
 void NoOpNode::accept(Visitor& v) {
   v.visit(*this);
 }
@@ -66,9 +95,11 @@ void Visitor::visit(BinaryNode& node) {
     case TokenType::PLUS: value = left + right; break;
     case TokenType::MINUS: value = left - right; break;
     case TokenType::MULTIPLY: value = left * right; break;
-    case TokenType::DIVIDE: value = left / right; break;
+    case TokenType::INT_DIV: value = left / right; break;
+    case TokenType::FLOAT_DIV: value = left / (float)right; break;
     default: throw std::invalid_argument("Invalid binary operator");
   }
+
 }
 
 void Visitor::visit(UnaryNode& node) {
@@ -84,7 +115,8 @@ void Visitor::visit(VarNode& node) {
   name = node.token.value;
   if (callstack.cache.count(name))
     value = callstack.cache.at(name);
-  else callstack.cache[name] = 0;
+  else
+    callstack.cache[name] = 0;
 
   /* throw std::invalid_argument("Undeclared identifier"); */
 }
@@ -105,9 +137,29 @@ void Visitor::visit(LiteralNode& node) {
 }
 
 void Visitor::visit(CompoundNode& node) {
-  for (auto child : node.children) {
+  for (auto& child : node.children) {
     child->accept(*this);
   }
+}
+
+void Visitor::visit(ProgramNode& node) {
+  node.child->accept(*this);
+}
+
+void Visitor::visit(BlockNode& node) {
+  for(auto& child: node.declarations) {
+    child->accept(*this);
+  }
+
+  node.compound_statement->accept(*this);
+}
+
+void Visitor::visit(VarDeclNode& node) {
+  return;
+}
+
+void Visitor::visit(TypeNode& node) {
+  return;
 }
 
 void Visitor::visit(NoOpNode& node) {

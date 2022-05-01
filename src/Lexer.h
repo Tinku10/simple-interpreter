@@ -13,11 +13,13 @@ public:
 
   void trim_white_space();
 
+  void skip_comments();
+
   Token add_token(TokenType type);
 
   char peek();
 
-  std::string number();
+  Token number();
 
   std::string string();
 

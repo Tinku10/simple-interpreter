@@ -2,7 +2,12 @@
 
 std::unordered_map<std::string, TokenType> reserved_keywords = {
   {"BEGIN", TokenType::BEGIN},
-  {"END", TokenType::END}
+  {"END", TokenType::END},
+  {"VAR", TokenType::VAR},
+  {"PROGRAM", TokenType::PROGRAM},
+  {"DIV", TokenType::INT_DIV},
+  {"INTEGER", TokenType::INTEGER},
+  {"REAL", TokenType::REAL}
 };
 
 Lexer::Lexer(std::string& source) : source(source) {
@@ -22,14 +27,34 @@ void Lexer::trim_white_space() {
   while (index < source.length() && std::isspace(source[index])) index++;
 }
 
-std::string Lexer::number() {
+void Lexer::skip_comments() {
+  while (index < source.length() && source[index] != '}') advance();
+  advance();
+
+  if (isspace(source[index])) trim_white_space();
+}
+
+Token Lexer::number() {
+  uint start = index;
+
   std::string result = "";
   while (index < source.length() && isdigit(source[index])) {
     result += source[index];
     advance();
   }
 
-  return result;
+  if(index < source.length() && source[index] == '.') {
+    result += source[index];
+    advance();
+    while (index < source.length() && isdigit(source[index])) {
+      result += source[index];
+      advance();
+    }
+
+    return Token(TokenType::REAL_CONST, std::move(result), start, index + 1, line);
+  }
+
+  return Token(TokenType::INTEGER_CONST, std::move(result), start, index + 1, line);
 }
 
 std::string Lexer::id() {
@@ -70,7 +95,6 @@ Token Lexer::add_token(TokenType type) {
   switch (type) {
     case TokenType::STRING:
       return Token(type, string(), start + 1, index - 1, line);
-    case TokenType::NUMBER: return Token(type, number(), start, index, line);
     case TokenType::ID: {
       std::string identifier = id();
       if (reserved_keywords.count(identifier))
@@ -87,7 +111,7 @@ Token Lexer::add_token(TokenType type) {
     case TokenType::MULTIPLY:
       advance();
       return Token(type, "*", start, index, line);
-    case TokenType::DIVIDE:
+    case TokenType::FLOAT_DIV:
       advance();
       return Token(type, "/", start, index, line);
     case TokenType::EQUAL:
@@ -122,7 +146,15 @@ Token Lexer::add_token(TokenType type) {
     case TokenType::SEMI:
       advance();
       return Token(type, ";", start, index, line);
-    default: throw std::invalid_argument("Invalid token");
+    case TokenType::COLON:
+      advance();
+      return Token(type, ":", start, index, line);
+    case TokenType::COMMA:
+      advance();
+      return Token(type, ",", start, index, line);
+    default: 
+      std::cout << source[index] << "\n";
+      throw std::invalid_argument("Invalid token");
   }
 }
 
@@ -135,9 +167,17 @@ Token Lexer::get_next_token() {
 
   if (isspace(curr)) trim_white_space();
 
+  while(source[index] == '{') {
+    skip_comments();
+  }
+
+  if (index > source.length() - 1) {
+    return Token(TokenType::ENDOFFILE, "EOF", index, index + 1, line);
+  }
+
   curr = source[index];
 
-  if (isdigit(curr)) return add_token(TokenType::NUMBER);
+  if (isdigit(curr)) return number();
 
   curr = source[index];
 
@@ -149,10 +189,12 @@ Token Lexer::get_next_token() {
     case '+': return add_token(TokenType::PLUS);
     case '-': return add_token(TokenType::MINUS);
     case '*': return add_token(TokenType::MULTIPLY);
-    case '/': return add_token(TokenType::DIVIDE);
+    case '/': return add_token(TokenType::FLOAT_DIV);
     case ':':
       if (peek() == '=')
         return add_token(TokenType::EQUAL);
+      else
+        return add_token(TokenType::COLON);
     case '=':
       if (peek() == '=')
         return add_token(TokenType::EQUAL_EQUAL);
@@ -173,6 +215,7 @@ Token Lexer::get_next_token() {
     case '"': return add_token(TokenType::STRING);
     case '.': return add_token(TokenType::DOT);
     case ';': return add_token(TokenType::SEMI);
+    case ',': return add_token(TokenType::COMMA);
     default: throw std::invalid_argument("Invalid token");
   }
 }
