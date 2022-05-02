@@ -9,5 +9,5 @@ Interpreter::Interpreter(Parser& parser,
 void Interpreter::interpret() {
   std::shared_ptr<Node> root = parser.parse();
   root->accept(symbol_visitor);
-  /* root->accept(visitor); */
+  root->accept(visitor);
 }

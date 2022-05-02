@@ -7,7 +7,8 @@ std::unordered_map<std::string, TokenType> reserved_keywords = {
   {"PROGRAM", TokenType::PROGRAM},
   {"DIV", TokenType::INT_DIV},
   {"INTEGER", TokenType::INTEGER},
-  {"REAL", TokenType::REAL}
+  {"REAL", TokenType::REAL},
+  {"PROCEDURE", TokenType::PROCEDURE}
 };
 
 Lexer::Lexer(std::string& source) : source(source) {
@@ -100,6 +101,7 @@ Token Lexer::add_token(TokenType type) {
       if (reserved_keywords.count(identifier))
         return Token(reserved_keywords[identifier], std::move(identifier),
                      start, index, line);
+      std::cout << identifier << "\n";
       return Token(type, std::move(identifier), start, index, line);
     }
     case TokenType::PLUS:

@@ -1,6 +1,6 @@
-#include "Visitor.h"
-
 #include <unordered_map>
+
+#include "Visitor.h"
 
 BinaryNode::BinaryNode(std::shared_ptr<Node> left,
                        Token token,
@@ -37,9 +37,16 @@ BlockNode::BlockNode(std::vector<std::shared_ptr<Node>> declarations,
 }
 
 VarDeclNode::VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
-  : var(var), type(type) {}
+    : var(var), type(type) {
+}
 
-TypeNode::TypeNode(Token token) : token(token) {}
+ProcedureDeclNode::ProcedureDeclNode(std::string name,
+                                     std::shared_ptr<Node> block)
+    : name(name), block(block) {
+}
+
+TypeNode::TypeNode(Token token) : token(token) {
+}
 
 void BinaryNode::accept(NodeVisitor& v) {
   v.visit(*this);
@@ -77,6 +84,10 @@ void VarDeclNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
+void ProcedureDeclNode::accept(NodeVisitor& v) {
+  v.visit(*this);
+}
+
 void TypeNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
@@ -99,7 +110,6 @@ void NodeVisitor::visit(BinaryNode& node) {
     case TokenType::FLOAT_DIV: value = left / (float)right; break;
     default: throw std::invalid_argument("Invalid binary operator");
   }
-
 }
 
 void NodeVisitor::visit(UnaryNode& node) {
@@ -147,7 +157,7 @@ void NodeVisitor::visit(ProgramNode& node) {
 }
 
 void NodeVisitor::visit(BlockNode& node) {
-  for(auto& child: node.declarations) {
+  for (auto& child : node.declarations) {
     child->accept(*this);
   }
 
@@ -155,6 +165,10 @@ void NodeVisitor::visit(BlockNode& node) {
 }
 
 void NodeVisitor::visit(VarDeclNode& node) {
+  return;
+}
+
+void NodeVisitor::visit(ProcedureDeclNode& node) {
   return;
 }
 

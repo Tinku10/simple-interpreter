@@ -1,8 +1,8 @@
 #include <vector>
 
 #include "CallStack.h"
-#include "Token.h"
 #include "SymbolTable.h"
+#include "Token.h"
 
 class NodeVisitor;
 class SymbolTableVisitor;
@@ -109,6 +109,17 @@ class VarDeclNode : public Node {
   void accept(SymbolTableVisitor& v) override;
 };
 
+class ProcedureDeclNode : public Node {
+public:
+  std::string name;
+  std::shared_ptr<Node> block;
+
+  ProcedureDeclNode(std::string name, std::shared_ptr<Node> block);
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
+
+};
+
 class TypeNode : public Node {
  public:
   Token token;
@@ -135,6 +146,7 @@ class Visitor {
   virtual void visit(ProgramNode& node) = 0;
   virtual void visit(BlockNode& node) = 0;
   virtual void visit(VarDeclNode& node) = 0;
+  virtual void visit(ProcedureDeclNode& node) = 0;
   virtual void visit(TypeNode& node) = 0;
   virtual void visit(NoOpNode& node) = 0;
 };
@@ -154,6 +166,7 @@ class NodeVisitor : public Visitor {
   void visit(ProgramNode& node) override;
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
+  void visit(ProcedureDeclNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
 };
@@ -173,6 +186,7 @@ class SymbolTableVisitor : public Visitor {
   void visit(ProgramNode& node) override;
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
+  void visit(ProcedureDeclNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
 };

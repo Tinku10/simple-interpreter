@@ -38,6 +38,10 @@ void VarDeclNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
 
+void ProcedureDeclNode::accept(SymbolTableVisitor& v) {
+  v.visit(*this);
+}
+
 void TypeNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
@@ -98,6 +102,10 @@ void SymbolTableVisitor::visit(VarDeclNode& node) {
 
   symbols.add(
       std::make_shared<VarTypeSymbol>(VarTypeSymbol(name, symbols.at(type))));
+}
+
+void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
+  return;
 }
 
 void SymbolTableVisitor::visit(TypeNode& node) {

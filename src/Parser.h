@@ -7,7 +7,7 @@
  * ============================================================================
  * program: PROGRAM variable SEMI block DOT
  * block: declarations compound
- * declarations: var (variable_declaration SEMI)+
+ * declarations: var (variable_declaration SEMI)+ | (PROCEDURE id SEMI block SEMI)* | EMPTY
  * variable_declaration: id (COMMA id)* COLON type
  * type: INTEGER | REAL
  * compound: begin statement_list end

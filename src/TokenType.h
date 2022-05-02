@@ -42,5 +42,6 @@ enum struct TokenType {
   END,
   DOT,
   PROGRAM,
-  VAR
+  VAR,
+  PROCEDURE
 };

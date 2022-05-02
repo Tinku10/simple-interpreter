@@ -4,6 +4,7 @@ Parser::Parser(Lexer& lexer) : lexer(lexer) {
 }
 
 void Parser::eat(TokenType type) {
+  std::cout << current_token << " " << (int)type << "\n";
   if (current_token.type != type) {
     throw std::invalid_argument("Unexpected token");
   }
@@ -19,6 +20,7 @@ std::shared_ptr<Node> Parser::factor() {
   }
 
   if (current_token.type == TokenType::ID) {
+    std::cout << current_token << "fac\n";
     Token token = current_token;
     eat(TokenType::ID);
     return std::make_shared<VarNode>(VarNode(token));
@@ -143,14 +145,28 @@ std::vector<std::shared_ptr<Node>> Parser::var_declaration() {
 }
 
 std::vector<std::shared_ptr<Node>> Parser::declarations() {
-  eat(TokenType::VAR);
   std::vector<std::shared_ptr<Node>> v;
 
-  while (current_token.type == TokenType::ID) {
-    std::vector<std::shared_ptr<Node>> declarations = var_declaration();
+  if(current_token.type == TokenType::VAR) {
+    eat(TokenType::VAR);
+
+    while (current_token.type == TokenType::ID) {
+      std::vector<std::shared_ptr<Node>> declarations = var_declaration();
+      eat(TokenType::SEMI);
+
+      for (auto& child : declarations) v.push_back(child);
+    }
+  } 
+
+  while (current_token.type == TokenType::PROCEDURE) {
+    eat(TokenType::PROCEDURE);
+    std::shared_ptr<Node> id = factor();
     eat(TokenType::SEMI);
 
-    for (auto& child : declarations) v.push_back(child);
+    std::shared_ptr<Node> b = block();
+    eat(TokenType::SEMI);
+
+    v.emplace_back(std::make_shared<ProcedureDeclNode>(ProcedureDeclNode(id->token.value, b)));
   }
 
   return v;
