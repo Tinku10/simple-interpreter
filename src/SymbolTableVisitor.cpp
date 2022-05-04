@@ -42,12 +42,21 @@ void ProcedureDeclNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
 
+void ParamsNode::accept(SymbolTableVisitor& v) {
+  v.visit(*this);
+}
+
 void TypeNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
 
 void NoOpNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
+}
+
+SymbolTableVisitor::SymbolTableVisitor()
+    : current_scope(
+        std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1))) {
 }
 
 void SymbolTableVisitor::visit(BinaryNode& node) {
@@ -61,7 +70,7 @@ void SymbolTableVisitor::visit(UnaryNode& node) {
 
 void SymbolTableVisitor::visit(VarNode& node) {
   name = node.token.value;
-  symbols.at(name);
+  current_scope->at(name);
 }
 
 void SymbolTableVisitor::visit(AssignNode& node) {
@@ -69,7 +78,7 @@ void SymbolTableVisitor::visit(AssignNode& node) {
 
   std::string var = name;
 
-  symbols.at(var);
+  current_scope->at(var);
 
   node.right->accept(*this);
 }
@@ -85,7 +94,13 @@ void SymbolTableVisitor::visit(CompoundNode& node) {
 }
 
 void SymbolTableVisitor::visit(ProgramNode& node) {
+  std::cout << "Using GLOBAL scope\n";
+  current_scope
+      = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1));
+
   node.child->accept(*this);
+
+  std::cout << *current_scope << "\n";
 }
 
 void SymbolTableVisitor::visit(BlockNode& node) {
@@ -98,14 +113,57 @@ void SymbolTableVisitor::visit(BlockNode& node) {
 
 void SymbolTableVisitor::visit(VarDeclNode& node) {
   std::string name = std::dynamic_pointer_cast<VarNode>(node.var)->token.value;
-  std::string type = std::dynamic_pointer_cast<TypeNode>(node.type)->token.value;
+  std::string type
+      = std::dynamic_pointer_cast<TypeNode>(node.type)->token.value;
 
-  symbols.add(
-      std::make_shared<VarTypeSymbol>(VarTypeSymbol(name, symbols.at(type))));
+  std::shared_ptr<Symbol> symbol = current_scope->at(name);
+  if (symbol) {
+    throw std::invalid_argument("Duplicate declaration found");
+  }
+
+  current_scope->add(std::make_shared<VarTypeSymbol>(
+      VarTypeSymbol(name, current_scope->at(type))));
+
+  /* std::cout << *current_scope << "\n"; */
 }
 
 void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
-  return;
+  std::cout << "Using Procedure scope\n";
+
+  std::shared_ptr<ScopedSymbolTable> prev_scope = current_scope;
+
+  current_scope = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable(
+      std::move(node.token.value), current_scope->scope_level + 1));
+
+  std::vector<std::shared_ptr<Symbol>> list;
+
+  for (auto& child : node.params) {
+    std::shared_ptr<ParamsNode> param
+        = std::static_pointer_cast<ParamsNode>(child);
+    std::string& name
+        = std::static_pointer_cast<VarNode>(param->var)->token.value;
+    std::string& type
+        = std::static_pointer_cast<VarNode>(param->type)->token.value;
+    std::shared_ptr<Symbol> var = std::make_shared<VarTypeSymbol>(
+        VarTypeSymbol(name, current_scope->at(type)));
+
+    current_scope->add(var);
+    list.push_back(var);
+    child->accept(*this);
+  }
+
+  std::shared_ptr<ProcedureSymbol> symbol
+      = std::make_shared<ProcedureSymbol>(ProcedureSymbol(node.name, list));
+
+  prev_scope->add(std::shared_ptr<ProcedureSymbol>(symbol));
+  std::cout << *prev_scope << "\n";
+
+  std::cout << *current_scope << "\n";
+
+  node.block->accept(*this);
+}
+
+void SymbolTableVisitor::visit(ParamsNode& node) {
 }
 
 void SymbolTableVisitor::visit(TypeNode& node) {

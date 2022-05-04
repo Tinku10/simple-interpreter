@@ -24,14 +24,14 @@ VarNode::VarNode(Token token) : token(token) {
 LiteralNode::LiteralNode(Token token) : token(token) {
 }
 
-CompoundNode::CompoundNode(std::vector<std::shared_ptr<Node>> children)
+CompoundNode::CompoundNode(std::vector<std::shared_ptr<Node>>& children)
     : children(children) {
 }
 
 ProgramNode::ProgramNode(std::shared_ptr<Node> child) : child(child) {
 }
 
-BlockNode::BlockNode(std::vector<std::shared_ptr<Node>> declarations,
+BlockNode::BlockNode(std::vector<std::shared_ptr<Node>>& declarations,
                      std::shared_ptr<Node> compound_statement)
     : declarations(declarations), compound_statement(compound_statement) {
 }
@@ -41,8 +41,13 @@ VarDeclNode::VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
 }
 
 ProcedureDeclNode::ProcedureDeclNode(std::string name,
+                                     std::vector<std::shared_ptr<Node>>& params,
                                      std::shared_ptr<Node> block)
-    : name(name), block(block) {
+    : name(name), params(params), block(block) {
+}
+
+ParamsNode::ParamsNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
+    : var(var), type(type) {
 }
 
 TypeNode::TypeNode(Token token) : token(token) {
@@ -85,6 +90,10 @@ void VarDeclNode::accept(NodeVisitor& v) {
 }
 
 void ProcedureDeclNode::accept(NodeVisitor& v) {
+  v.visit(*this);
+}
+
+void ParamsNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
@@ -169,6 +178,10 @@ void NodeVisitor::visit(VarDeclNode& node) {
 }
 
 void NodeVisitor::visit(ProcedureDeclNode& node) {
+  return;
+}
+
+void NodeVisitor::visit(ParamsNode& node) {
   return;
 }
 

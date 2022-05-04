@@ -4,7 +4,6 @@ Parser::Parser(Lexer& lexer) : lexer(lexer) {
 }
 
 void Parser::eat(TokenType type) {
-  std::cout << current_token << " " << (int)type << "\n";
   if (current_token.type != type) {
     throw std::invalid_argument("Unexpected token");
   }
@@ -20,7 +19,6 @@ std::shared_ptr<Node> Parser::factor() {
   }
 
   if (current_token.type == TokenType::ID) {
-    std::cout << current_token << "fac\n";
     Token token = current_token;
     eat(TokenType::ID);
     return std::make_shared<VarNode>(VarNode(token));
@@ -144,10 +142,54 @@ std::vector<std::shared_ptr<Node>> Parser::var_declaration() {
   return declarations;
 }
 
+std::vector<std::shared_ptr<Node>> Parser::parameters() {
+  std::vector<std::shared_ptr<Node>> v;
+
+  v.emplace_back(factor());
+
+  while (current_token.type == TokenType::COMMA) {
+    eat(current_token.type);
+    v.emplace_back(factor());
+  }
+
+  eat(TokenType::COLON);
+
+  std::shared_ptr<Node> node = type();
+
+  std::vector<std::shared_ptr<Node>> list;
+
+  for (auto& child : v) {
+    std::shared_ptr<VarNode> var = std::static_pointer_cast<VarNode>(child);
+    list.emplace_back(std::make_shared<ParamsNode>(ParamsNode(var, node)));
+  }
+
+  return list;
+}
+
+std::vector<std::shared_ptr<Node>> Parser::parameters_list() {
+  std::vector<std::shared_ptr<Node>> v;
+
+  std::vector<std::shared_ptr<Node>> list = parameters();
+  for (auto& child : list) {
+    v.emplace_back(child);
+  }
+
+  while (current_token.type == TokenType::SEMI) {
+    eat(current_token.type);
+    list = parameters();
+    for (auto& child : list) {
+      v.emplace_back(child);
+    }
+  }
+
+
+  return v;
+}
+
 std::vector<std::shared_ptr<Node>> Parser::declarations() {
   std::vector<std::shared_ptr<Node>> v;
 
-  if(current_token.type == TokenType::VAR) {
+  if (current_token.type == TokenType::VAR) {
     eat(TokenType::VAR);
 
     while (current_token.type == TokenType::ID) {
@@ -156,24 +198,37 @@ std::vector<std::shared_ptr<Node>> Parser::declarations() {
 
       for (auto& child : declarations) v.push_back(child);
     }
-  } 
+
+  }
 
   while (current_token.type == TokenType::PROCEDURE) {
     eat(TokenType::PROCEDURE);
-    std::shared_ptr<Node> id = factor();
+    std::shared_ptr<VarNode> id = std::static_pointer_cast<VarNode>(factor());
+
+    std::vector<std::shared_ptr<Node>> parameters;
+    if (current_token.type == TokenType::L_PAREN) {
+      eat(TokenType::L_PAREN);
+      parameters = parameters_list();
+      eat(TokenType::R_PAREN);
+    }
     eat(TokenType::SEMI);
 
     std::shared_ptr<Node> b = block();
     eat(TokenType::SEMI);
 
-    v.emplace_back(std::make_shared<ProcedureDeclNode>(ProcedureDeclNode(id->token.value, b)));
+    v.emplace_back(std::make_shared<ProcedureDeclNode>(
+        ProcedureDeclNode(id->token.value, parameters, b)));
+
   }
+
 
   return v;
 }
 
 std::shared_ptr<Node> Parser::block() {
-  return std::make_shared<BlockNode>(BlockNode(declarations(), compound()));
+  std::vector<std::shared_ptr<Node>> list = declarations();
+
+  return std::make_shared<BlockNode>(BlockNode(list, compound()));
 }
 
 std::shared_ptr<Node> Parser::program() {
@@ -184,7 +239,7 @@ std::shared_ptr<Node> Parser::program() {
   eat(TokenType::DOT);
   eat(TokenType::ENDOFFILE);
 
-  return node;
+  return std::make_shared<ProgramNode>(ProgramNode(node));
 }
 
 std::shared_ptr<Node> Parser::parse() {

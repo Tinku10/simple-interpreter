@@ -13,6 +13,6 @@ Token::Token(TokenType type,
 }
 
 std::ostream& operator<<(std::ostream& cout, Token& token) {
-  std::cout << "Token(" << (int)token.type << ", " << token.value << ")\n";
+  std::cout << "Token(" << (int)token.type << ", " << token.value << ")";
   return cout;
 }

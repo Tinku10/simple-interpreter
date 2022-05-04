@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "CallStack.h"
-#include "SymbolTable.h"
+#include "ScopedSymbolTable.h"
 #include "Token.h"
 
 class NodeVisitor;
@@ -74,7 +74,7 @@ class CompoundNode : public Node {
   /* Token token; */
   std::vector<std::shared_ptr<Node>> children;
 
-  CompoundNode(std::vector<std::shared_ptr<Node>> children);
+  CompoundNode(std::vector<std::shared_ptr<Node>>& children);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
 };
@@ -93,7 +93,7 @@ class BlockNode : public Node {
   std::vector<std::shared_ptr<Node>> declarations;
   std::shared_ptr<Node> compound_statement;
 
-  BlockNode(std::vector<std::shared_ptr<Node>> declarations,
+  BlockNode(std::vector<std::shared_ptr<Node>>& declarations,
             std::shared_ptr<Node> compound_statement);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
@@ -110,14 +110,26 @@ class VarDeclNode : public Node {
 };
 
 class ProcedureDeclNode : public Node {
-public:
+ public:
   std::string name;
+  std::vector<std::shared_ptr<Node>> params;
   std::shared_ptr<Node> block;
 
-  ProcedureDeclNode(std::string name, std::shared_ptr<Node> block);
+  ProcedureDeclNode(std::string name,
+                    std::vector<std::shared_ptr<Node>>& params,
+                    std::shared_ptr<Node> block);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+};
 
+class ParamsNode : public Node {
+ public:
+  std::shared_ptr<Node> var;
+  std::shared_ptr<Node> type;
+
+  ParamsNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type);
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
 };
 
 class TypeNode : public Node {
@@ -147,6 +159,7 @@ class Visitor {
   virtual void visit(BlockNode& node) = 0;
   virtual void visit(VarDeclNode& node) = 0;
   virtual void visit(ProcedureDeclNode& node) = 0;
+  virtual void visit(ParamsNode& node) = 0;
   virtual void visit(TypeNode& node) = 0;
   virtual void visit(NoOpNode& node) = 0;
 };
@@ -167,6 +180,7 @@ class NodeVisitor : public Visitor {
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
+  void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
 };
@@ -175,7 +189,10 @@ class SymbolTableVisitor : public Visitor {
  public:
   int value;
   std::string name;
-  SymbolTable symbols;
+  /* ScopedSymbolTable symbols; */
+  std::shared_ptr<ScopedSymbolTable> current_scope;
+
+  SymbolTableVisitor();
 
   void visit(BinaryNode& node) override;
   void visit(UnaryNode& node) override;
@@ -187,6 +204,7 @@ class SymbolTableVisitor : public Visitor {
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
+  void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
 };

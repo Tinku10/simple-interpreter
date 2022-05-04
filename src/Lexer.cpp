@@ -101,7 +101,6 @@ Token Lexer::add_token(TokenType type) {
       if (reserved_keywords.count(identifier))
         return Token(reserved_keywords[identifier], std::move(identifier),
                      start, index, line);
-      std::cout << identifier << "\n";
       return Token(type, std::move(identifier), start, index, line);
     }
     case TokenType::PLUS:
@@ -154,8 +153,13 @@ Token Lexer::add_token(TokenType type) {
     case TokenType::COMMA:
       advance();
       return Token(type, ",", start, index, line);
+    case TokenType::L_PAREN:
+      advance();
+      return Token(type, "(", start, index, line);
+    case TokenType::R_PAREN:
+      advance();
+      return Token(type, ")", start, index, line);
     default: 
-      std::cout << source[index] << "\n";
       throw std::invalid_argument("Invalid token");
   }
 }
@@ -218,6 +222,9 @@ Token Lexer::get_next_token() {
     case '.': return add_token(TokenType::DOT);
     case ';': return add_token(TokenType::SEMI);
     case ',': return add_token(TokenType::COMMA);
-    default: throw std::invalid_argument("Invalid token");
+    case '(': return add_token(TokenType::L_PAREN);
+    case ')': return add_token(TokenType::R_PAREN);
+    default: 
+      throw std::invalid_argument("Invalid token");
   }
 }

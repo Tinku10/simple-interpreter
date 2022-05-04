@@ -7,7 +7,9 @@
  * ============================================================================
  * program: PROGRAM variable SEMI block DOT
  * block: declarations compound
- * declarations: var (variable_declaration SEMI)+ | (PROCEDURE id SEMI block SEMI)* | EMPTY
+ * declarations: var (variable_declaration SEMI)+ | (PROCEDURE id (LPAREN parameters_list RPAREN)? SEMI block SEMI)* | EMPTY
+ * parameters_list: parameters, parameters SEMI parameters_list
+ * parameters: ID (COMMA ID)* COLON type 
  * variable_declaration: id (COMMA id)* COLON type
  * type: INTEGER | REAL
  * compound: begin statement_list end
@@ -35,6 +37,8 @@ public:
   std::shared_ptr<Node> compound();
   std::shared_ptr<Node> program();
   std::shared_ptr<Node> block();
+  std::vector<std::shared_ptr<Node>> parameters_list();
+  std::vector<std::shared_ptr<Node>> parameters();
   std::vector<std::shared_ptr<Node>> declarations();
   std::vector<std::shared_ptr<Node>> var_declaration();
   std::shared_ptr<Node> type();
