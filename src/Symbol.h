@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 class Symbol {
  public:
@@ -31,7 +32,7 @@ class VarTypeSymbol : public Symbol {
 
 class ProcedureSymbol : public Symbol {
  public:
-  std::vector<std::shared_ptr<Symbol>>& declarations;
+  std::vector<std::shared_ptr<Symbol>> declarations;
 
   ProcedureSymbol(std::string& name,
                   std::vector<std::shared_ptr<Symbol>>& declarations);

@@ -5,24 +5,27 @@
 
 int main() {
   std::string source
-    ="PROGRAM Main;"
-     "   VAR x, y: REAL;"
+      = "PROGRAM Main;"
+        "   VAR x, y : REAL;"
+        "   VAR z : INTEGER;"
 
-     "   PROCEDURE Alpha(a : INTEGER);"
-     "      VAR y : INTEGER;"
-     "   BEGIN"
+        "   PROCEDURE AlphaA(a : INTEGER);"
+        "      VAR y : INTEGER;"
+        "   BEGIN { AlphaA }"
+        "      x := a + x + y;"
+        "   END;  { AlphaA }"
 
-     "   END;"
+        "   PROCEDURE AlphaB(a : INTEGER);"
+        "      VAR b : INTEGER;"
+        "   BEGIN { AlphaB }"
+        "   END;  { AlphaB }"
 
-     "BEGIN { Main }"
-
-     "END.  { Main }";
+        "BEGIN { Main }"
+        "END.  { Main }";
 
   Lexer lexer(source);
   Parser parser(lexer);
-  NodeVisitor visitor;
-  SymbolTableVisitor symbol_visitor;
 
-  Interpreter interpreter(parser, visitor, symbol_visitor);
+  Interpreter interpreter(parser);
   interpreter.interpret();
 }

@@ -6,12 +6,14 @@
 
 class NodeVisitor;
 class SymbolTableVisitor;
+class SourceToSourceCompilerVisitor;
 
 class Node {
  public:
   Token token;
   virtual void accept(NodeVisitor& v) = 0;
   virtual void accept(SymbolTableVisitor& v) = 0;
+  virtual void accept(SourceToSourceCompilerVisitor& v) = 0;
 };
 
 class BinaryNode : public Node {
@@ -26,6 +28,7 @@ class BinaryNode : public Node {
 
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class UnaryNode : public Node {
@@ -36,6 +39,7 @@ class UnaryNode : public Node {
   UnaryNode(std::shared_ptr<Node> node, Token token);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class AssignNode : public Node {
@@ -49,6 +53,7 @@ class AssignNode : public Node {
              std::shared_ptr<Node> right);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class VarNode : public Node {
@@ -58,6 +63,7 @@ class VarNode : public Node {
   VarNode(Token token);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class LiteralNode : public Node {
@@ -67,6 +73,7 @@ class LiteralNode : public Node {
   LiteralNode(Token token);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class CompoundNode : public Node {
@@ -77,15 +84,18 @@ class CompoundNode : public Node {
   CompoundNode(std::vector<std::shared_ptr<Node>>& children);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class ProgramNode : public Node {
  public:
+  std::shared_ptr<Node> var;
   std::shared_ptr<Node> child;
 
-  ProgramNode(std::shared_ptr<Node> child);
+  ProgramNode(std::shared_ptr<Node> var, std::shared_ptr<Node> child);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class BlockNode : public Node {
@@ -97,6 +107,7 @@ class BlockNode : public Node {
             std::shared_ptr<Node> compound_statement);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class VarDeclNode : public Node {
@@ -107,6 +118,7 @@ class VarDeclNode : public Node {
   VarDeclNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class ProcedureDeclNode : public Node {
@@ -120,6 +132,7 @@ class ProcedureDeclNode : public Node {
                     std::shared_ptr<Node> block);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class ParamsNode : public Node {
@@ -130,6 +143,7 @@ class ParamsNode : public Node {
   ParamsNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class TypeNode : public Node {
@@ -139,12 +153,14 @@ class TypeNode : public Node {
   TypeNode(Token token);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class NoOpNode : public Node {
  public:
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
 class Visitor {
@@ -193,6 +209,29 @@ class SymbolTableVisitor : public Visitor {
   std::shared_ptr<ScopedSymbolTable> current_scope;
 
   SymbolTableVisitor();
+
+  void visit(BinaryNode& node) override;
+  void visit(UnaryNode& node) override;
+  void visit(AssignNode& node) override;
+  void visit(LiteralNode& node) override;
+  void visit(VarNode& node) override;
+  void visit(CompoundNode& node) override;
+  void visit(ProgramNode& node) override;
+  void visit(BlockNode& node) override;
+  void visit(VarDeclNode& node) override;
+  void visit(ProcedureDeclNode& node) override;
+  void visit(ParamsNode& node) override;
+  void visit(TypeNode& node) override;
+  void visit(NoOpNode& node) override;
+};
+
+class SourceToSourceCompilerVisitor : public Visitor {
+ public:
+  std::string value;
+  std::string name;
+  uint level;
+
+  SourceToSourceCompilerVisitor();
 
   void visit(BinaryNode& node) override;
   void visit(UnaryNode& node) override;

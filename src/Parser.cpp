@@ -189,7 +189,7 @@ std::vector<std::shared_ptr<Node>> Parser::parameters_list() {
 std::vector<std::shared_ptr<Node>> Parser::declarations() {
   std::vector<std::shared_ptr<Node>> v;
 
-  if (current_token.type == TokenType::VAR) {
+  while (current_token.type == TokenType::VAR) {
     eat(TokenType::VAR);
 
     while (current_token.type == TokenType::ID) {
@@ -239,7 +239,7 @@ std::shared_ptr<Node> Parser::program() {
   eat(TokenType::DOT);
   eat(TokenType::ENDOFFILE);
 
-  return std::make_shared<ProgramNode>(ProgramNode(node));
+  return std::make_shared<ProgramNode>(ProgramNode(var, node));
 }
 
 std::shared_ptr<Node> Parser::parse() {

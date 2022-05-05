@@ -28,7 +28,7 @@ CompoundNode::CompoundNode(std::vector<std::shared_ptr<Node>>& children)
     : children(children) {
 }
 
-ProgramNode::ProgramNode(std::shared_ptr<Node> child) : child(child) {
+ProgramNode::ProgramNode(std::shared_ptr<Node> var, std::shared_ptr<Node> child) : var(var), child(child) {
 }
 
 BlockNode::BlockNode(std::vector<std::shared_ptr<Node>>& declarations,

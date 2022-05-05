@@ -2,8 +2,8 @@
 
 #include <vector>
 
-ScopedSymbolTable::ScopedSymbolTable(std::string&& scope_name, uint scope_level)
-    : scope_name(scope_name), scope_level(scope_level) {
+ScopedSymbolTable::ScopedSymbolTable(std::string&& scope_name, uint scope_level, std::shared_ptr<ScopedSymbolTable> parent_scope)
+    : scope_name(scope_name), scope_level(scope_level), parent_scope(parent_scope) {
   initialize();
 }
 
@@ -17,8 +17,15 @@ void ScopedSymbolTable::initialize() {
 }
 
 std::shared_ptr<Symbol> ScopedSymbolTable::at(std::string& name) {
-  if (symbols.count(name)) return symbols[name];
+  std::shared_ptr<ScopedSymbolTable> scope = std::make_shared<ScopedSymbolTable>(*this);
 
+  while(scope) {
+    std::cout << name << " lookup at " << scope->scope_name << " scope\n";
+    if (scope->symbols.count(name)) return scope->symbols.at(name);
+    scope = scope->parent_scope;
+  }
+
+  /* if (symbols.count(name)) return symbols.at(name); */
   return nullptr;
 }
 
