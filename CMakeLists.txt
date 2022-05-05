@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
   src/Interpreter.cpp
   src/ScopedSymbolTable.cpp
   src/Symbol.cpp
+  src/SourceToSourceCompilerVisitor.cpp
 )
 
 # generate compiler commands to help clangd find include paths

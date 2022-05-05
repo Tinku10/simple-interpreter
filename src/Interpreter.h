@@ -1,12 +1,10 @@
 #include "Parser.h"
 
 class Interpreter {
-public:
+ public:
   Parser parser;
-  NodeVisitor visitor;
-  SymbolTableVisitor symbol_visitor;
 
-  Interpreter(Parser& parser, NodeVisitor& visitor, SymbolTableVisitor& symbol_visitor);
+  Interpreter(Parser& parser);
 
   void interpret();
 };
