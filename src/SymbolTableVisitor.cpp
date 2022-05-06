@@ -56,7 +56,7 @@ void NoOpNode::accept(SymbolTableVisitor& v) {
 
 SymbolTableVisitor::SymbolTableVisitor()
     : current_scope(
-        std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1))) {
+        std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("BUILTIN", 0))) {
 }
 
 void SymbolTableVisitor::visit(BinaryNode& node) {
@@ -101,7 +101,7 @@ void SymbolTableVisitor::visit(ProgramNode& node) {
   std::cout << "Enter GLOBAL scope\n";
 
   current_scope
-      = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1));
+      = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1, current_scope));
 
   node.child->accept(*this);
 
@@ -123,10 +123,16 @@ void SymbolTableVisitor::visit(VarDeclNode& node) {
   std::string type
       = std::dynamic_pointer_cast<TypeNode>(node.type)->token.value;
 
-  std::shared_ptr<Symbol> symbol = current_scope->at(type);
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(type);
 
-  current_scope->add(std::make_shared<VarTypeSymbol>(
-      VarTypeSymbol(name, symbol)));
+  std::cout << name << " " << type << "\n";
+  if (current_scope->at(name, 1)) {
+    throw std::invalid_argument("Duplicated identifier found");
+  }
+
+  current_scope->add(
+      std::make_shared<VarTypeSymbol>(VarTypeSymbol(name, symbol->symbol)));
+  std::cout << *current_scope << "\n";
 }
 
 void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
@@ -146,7 +152,7 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
         = std::static_pointer_cast<VarNode>(param->type)->token.value;
 
     std::shared_ptr<VarTypeSymbol> var = std::make_shared<VarTypeSymbol>(
-        VarTypeSymbol(name, current_scope->at(type)));
+        VarTypeSymbol(name, current_scope->at(type)->symbol));
 
     current_scope->add(var);
     list.push_back(var);

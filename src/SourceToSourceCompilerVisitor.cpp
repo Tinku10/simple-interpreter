@@ -55,7 +55,9 @@ void NoOpNode::accept(SourceToSourceCompilerVisitor& v) {
 }
 
 SourceToSourceCompilerVisitor::SourceToSourceCompilerVisitor()
-    : level(0) {
+    : level(0),
+      current_scope(std::make_shared<ScopedSymbolTable>(
+          ScopedSymbolTable("BUILTIN", 0))) {
 }
 
 void SourceToSourceCompilerVisitor::visit(BinaryNode& node) {
@@ -73,7 +75,12 @@ void SourceToSourceCompilerVisitor::visit(UnaryNode& node) {
 
 void SourceToSourceCompilerVisitor::visit(VarNode& node) {
   name = node.token.value;
-  value = name;
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(name);
+  std::shared_ptr<SymbolWithScope> type
+      = current_scope->at(symbol->symbol->type->name);
+  value = "<" + name + std::to_string(symbol->scope_level) + ":"
+          + symbol->symbol->type->name + std::to_string(type->scope_level)
+          + ">";
 }
 
 void SourceToSourceCompilerVisitor::visit(AssignNode& node) {
@@ -83,8 +90,9 @@ void SourceToSourceCompilerVisitor::visit(AssignNode& node) {
 
   node.right->accept(*this);
 
-  std::cout << std::string(" ", level);
-  std::cout << var << " := " << value << ";\n";
+  std::cout << std::string(level * 2, ' ');
+  std::cout << var + std::to_string(current_scope->scope_level)
+            << " := " << value << ";\n";
 }
 
 void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
@@ -92,17 +100,26 @@ void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
 }
 
 void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
+  level += 1;
+
   for (auto& child : node.children) {
     child->accept(*this);
   }
+
+  level -= 1;
 }
 
 void SourceToSourceCompilerVisitor::visit(ProgramNode& node) {
   std::cout << "PROGRAM "
-            << std::dynamic_pointer_cast<VarNode>(node.var)->token.value << 0
-            << ";\n";
+            << std::dynamic_pointer_cast<VarNode>(node.var)->token.value
+            << current_scope->scope_level << ";\n";
+
+  current_scope = std::make_shared<ScopedSymbolTable>(
+      ScopedSymbolTable("GLOBAL", 1, current_scope));
 
   node.child->accept(*this);
+
+  current_scope = current_scope->parent_scope;
 }
 
 void SourceToSourceCompilerVisitor::visit(BlockNode& node) {
@@ -112,11 +129,11 @@ void SourceToSourceCompilerVisitor::visit(BlockNode& node) {
     child->accept(*this);
   }
 
-  std::cout << std::string(" ", level);
-  std::cout << "BEGIN; {Begin " << level << "}\n";
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "BEGIN; {Begin " << current_scope->scope_name << "}\n";
   node.compound_statement->accept(*this);
-  std::cout << std::string(" ", level);
-  std::cout << "END; {End of " << level << "}\n";
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "END; {End of " << current_scope->scope_name << "}\n";
 
   level -= 1;
 }
@@ -126,13 +143,28 @@ void SourceToSourceCompilerVisitor::visit(VarDeclNode& node) {
   std::string type
       = std::dynamic_pointer_cast<TypeNode>(node.type)->token.value;
 
-  std::cout << std::string(" ", level);
-  std::cout << "var " << name << level << ": " << type
-            << ";\n";
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "var " << name << level << ": ";
+
+  node.type->accept(*this);
+
+  std::cout << "\n";
+
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(type);
+
+  current_scope->add(
+      std::make_shared<VarTypeSymbol>(VarTypeSymbol(name, symbol->symbol)));
 }
 
 void SourceToSourceCompilerVisitor::visit(ProcedureDeclNode& node) {
-  std::vector<std::pair<std::string, std::string>> list;
+  current_scope = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable(
+      std::move(node.name), current_scope->scope_level + 1, current_scope));
+
+  std::vector<std::shared_ptr<Symbol>> list;
+
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "PROCEDURE " << node.name << level << "("
+            << "";
 
   for (auto& child : node.params) {
     std::shared_ptr<ParamsNode> param
@@ -140,29 +172,42 @@ void SourceToSourceCompilerVisitor::visit(ProcedureDeclNode& node) {
     std::string& name
         = std::static_pointer_cast<VarNode>(param->var)->token.value;
     std::string& type
-        = std::static_pointer_cast<VarNode>(param->type)->token.value;
+        = std::static_pointer_cast<TypeNode>(param->type)->token.value;
 
-    list.push_back({name, type});
+    std::shared_ptr<VarTypeSymbol> var = std::make_shared<VarTypeSymbol>(
+        VarTypeSymbol(name, current_scope->at(type)->symbol));
+
+    current_scope->add(var);
+    list.push_back(var);
     child->accept(*this);
   }
 
-  std::cout << std::string(" ", level);
-  std::cout << "PROCEDURE " << node.name
-            << level << "("
-            << "";
-  for (auto& child : list) {
-    std::cout << child.first << ": " << child.second;
-  }
+  /* for (auto& child : list) { */
+  /*   std::cout << current_scope->at(child->name)->symbol->name << ": " <<
+   * child->type->name; */
+  /* } */
   std::cout << ");\n";
 
+  std::shared_ptr<ProcedureSymbol> symbol
+      = std::make_shared<ProcedureSymbol>(ProcedureSymbol(node.name, list));
+
+  current_scope->parent_scope->add(symbol);
+
   node.block->accept(*this);
+
+  current_scope = current_scope->parent_scope;
 }
 
 void SourceToSourceCompilerVisitor::visit(ParamsNode& node) {
+  /* node.var->accept(*this); */
+  std::string& name = std::static_pointer_cast<VarNode>(node.var)->token.value;
+  std::cout << name << ": ";
+  node.type->accept(*this);
 }
 
 void SourceToSourceCompilerVisitor::visit(TypeNode& node) {
-  return;
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(node.token.value);
+  std::cout << node.token.value << symbol->scope_level;
 }
 
 void SourceToSourceCompilerVisitor::visit(NoOpNode& node) {

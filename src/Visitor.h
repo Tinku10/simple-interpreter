@@ -230,6 +230,7 @@ class SourceToSourceCompilerVisitor : public Visitor {
   std::string value;
   std::string name;
   uint level;
+  std::shared_ptr<ScopedSymbolTable> current_scope;
 
   SourceToSourceCompilerVisitor();
 
