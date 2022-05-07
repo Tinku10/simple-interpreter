@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME}
   src/Symbol.cpp
   src/SourceToSourceCompilerVisitor.cpp
   src/Exceptions.cpp
+  src/CallStack.cpp
 )
 
 # generate compiler commands to help clangd find include paths
