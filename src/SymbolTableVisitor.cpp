@@ -71,7 +71,8 @@ void SymbolTableVisitor::visit(UnaryNode& node) {
 void SymbolTableVisitor::visit(VarNode& node) {
   name = node.token.value;
   if (current_scope->at(name) == nullptr) {
-    std::invalid_argument("Undeclared identifier");
+    throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
+    /* std::invalid_argument("Undeclared identifier"); */
   }
 }
 
@@ -81,7 +82,8 @@ void SymbolTableVisitor::visit(AssignNode& node) {
   std::string var = name;
 
   if (current_scope->at(var) == nullptr) {
-    std::invalid_argument("Undeclared identifier");
+    throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
+    /* std::invalid_argument("Undeclared identifier"); */
   }
 
   node.right->accept(*this);
@@ -100,8 +102,8 @@ void SymbolTableVisitor::visit(CompoundNode& node) {
 void SymbolTableVisitor::visit(ProgramNode& node) {
   std::cout << "Enter GLOBAL scope\n";
 
-  current_scope
-      = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable("GLOBAL", 1, current_scope));
+  current_scope = std::make_shared<ScopedSymbolTable>(
+      ScopedSymbolTable("GLOBAL", 1, current_scope));
 
   node.child->accept(*this);
 
@@ -127,12 +129,13 @@ void SymbolTableVisitor::visit(VarDeclNode& node) {
 
   std::cout << name << " " << type << "\n";
   if (current_scope->at(name, 1)) {
-    throw std::invalid_argument("Duplicated identifier found");
+    throw error(ErrorCode::DUPLICATE_IDENTIFIER,
+                std::dynamic_pointer_cast<VarNode>(node.var)->token);
+    /* throw std::invalid_argument("Duplicated identifier found"); */
   }
 
   current_scope->add(
       std::make_shared<VarTypeSymbol>(VarTypeSymbol(name, symbol->symbol)));
-  std::cout << *current_scope << "\n";
 }
 
 void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
@@ -180,4 +183,19 @@ void SymbolTableVisitor::visit(TypeNode& node) {
 
 void SymbolTableVisitor::visit(NoOpNode& node) {
   return;
+}
+
+Exception SymbolTableVisitor::error(ErrorCode code, Token& token) {
+  std::string msg = "";
+  switch (code) {
+    case ErrorCode::DUPLICATE_IDENTIFIER: msg = "duplicate identifier\n"; break;
+    case ErrorCode::IDENTIFIER_NOT_FOUND:
+      msg = "undeclared identifier\n";
+      break;
+    default: msg = "unknown error\n";
+  }
+
+  msg += "symantic error at line " + std::to_string(token.line) + " column "
+         + std::to_string(token.start);
+  throw Exception(code, msg);
 }

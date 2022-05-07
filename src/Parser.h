@@ -14,7 +14,8 @@
  * type: INTEGER | REAL
  * compound: begin statement_list end
  * statement_list: statement SEMI statement_list | compound
- * statement: var ASSIGN expr
+ * procedure_call_statement: ID LAPREN (expr (COMMA expr)*)? RPAREN 
+ * statement: var ASSIGN expr | procedure_call_statement
  * var: id
  * expr: term ((PLUS | MINUS) term)*
  * term: id ((MUL | DIV) id)*
@@ -33,6 +34,7 @@ public:
   std::shared_ptr<Node> expr();
   std::shared_ptr<Node> var();
   std::shared_ptr<Node> statement();
+  std::shared_ptr<Node> procedure_call_statement();
   std::shared_ptr<Node> statement_list();
   std::shared_ptr<Node> compound();
   std::shared_ptr<Node> program();
@@ -44,4 +46,6 @@ public:
   std::shared_ptr<Node> type();
 
   std::shared_ptr<Node> parse();
+
+  Exception error(ErrorCode code);
 };

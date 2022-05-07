@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "TokenType.h"
+#include "Exceptions.h"
 
 class Token {
 public:
@@ -15,4 +16,6 @@ public:
   ~Token();
 
   friend std::ostream& operator<<(std::ostream& cout, Token& token);
+
+  void error();
 };

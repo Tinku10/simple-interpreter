@@ -6,6 +6,7 @@ public:
   std::string source;
   uint index = 0;
   uint line = 0;
+  uint col = 0;
 
   Lexer(std::string& source);
 
@@ -26,4 +27,6 @@ public:
   std::string id();
 
   Token get_next_token();
+
+  Exception error(ErrorCode code);
 };

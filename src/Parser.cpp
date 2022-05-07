@@ -5,7 +5,8 @@ Parser::Parser(Lexer& lexer) : lexer(lexer) {
 
 void Parser::eat(TokenType type) {
   if (current_token.type != type) {
-    throw std::invalid_argument("Unexpected token");
+    throw error(ErrorCode::UNEXPECTED_TOKEN);
+    /* throw std::invalid_argument("Unexpected token"); */
   }
   current_token = lexer.get_next_token();
 }
@@ -74,6 +75,10 @@ std::shared_ptr<Node> Parser::statement() {
     return compound();
   }
 
+  if (current_token.type == TokenType::ID && lexer.source[lexer.index] == '(') {
+    return procedure_call_statement();
+  }
+
   if (current_token.type == TokenType::ID) {
     std::shared_ptr<Node> left = factor();
 
@@ -84,6 +89,29 @@ std::shared_ptr<Node> Parser::statement() {
   }
 
   return std::make_shared<NoOpNode>(NoOpNode());
+}
+
+std::shared_ptr<Node> Parser::procedure_call_statement() {
+  Token token = current_token;
+
+  std::shared_ptr<Node> id = var();
+
+  eat(TokenType::L_PAREN);
+
+  std::vector<std::shared_ptr<Node>> v;
+
+  if(current_token.type != TokenType::R_PAREN) {
+    v.emplace_back(expr());
+
+    while(current_token.type == TokenType::COMMA) {
+      eat(current_token.type);
+      v.emplace_back(expr());
+    }
+  }
+
+  eat(TokenType::R_PAREN);
+
+  return std::make_shared<ProcedureCallNode>(ProcedureCallNode(token, token.value, v));
 }
 
 std::shared_ptr<Node> Parser::statement_list() {
@@ -113,7 +141,8 @@ std::shared_ptr<Node> Parser::type() {
   } else if (current_token.type == TokenType::REAL) {
     eat(TokenType::REAL);
   } else {
-    std::invalid_argument("Invalid type");
+    throw error(ErrorCode::UNEXPECTED_TOKEN);
+    /* std::invalid_argument("Invalid type"); */
   }
   return std::make_shared<TypeNode>(TypeNode(token));
 }
@@ -182,7 +211,6 @@ std::vector<std::shared_ptr<Node>> Parser::parameters_list() {
     }
   }
 
-
   return v;
 }
 
@@ -198,7 +226,6 @@ std::vector<std::shared_ptr<Node>> Parser::declarations() {
 
       for (auto& child : declarations) v.push_back(child);
     }
-
   }
 
   while (current_token.type == TokenType::PROCEDURE) {
@@ -218,9 +245,7 @@ std::vector<std::shared_ptr<Node>> Parser::declarations() {
 
     v.emplace_back(std::make_shared<ProcedureDeclNode>(
         ProcedureDeclNode(id->token.value, parameters, b)));
-
   }
-
 
   return v;
 }
@@ -245,4 +270,16 @@ std::shared_ptr<Node> Parser::program() {
 std::shared_ptr<Node> Parser::parse() {
   current_token = lexer.get_next_token();
   return program();
+}
+
+Exception Parser::error(ErrorCode code) {
+  std::string msg = "";
+  switch (code) {
+    case ErrorCode::UNEXPECTED_TOKEN: msg = "unexpected token\n"; break;
+    default: msg = "unknown error\n";
+  }
+
+  msg += "syntax error at line " + std::to_string(this->current_token.line)
+         + " column " + std::to_string(this->current_token.start);
+  throw Exception(code, msg);
 }

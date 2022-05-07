@@ -2,43 +2,29 @@
 
 #include "Interpreter.h"
 #include "Parser.h"
+#include <sstream>
+#include <fstream>
 
 int main() {
-  std::string source
-      = "PROGRAM Main;"
-        "   VAR b, x, y : REAL;"
-        "   VAR z : INTEGER;"
+  std::stringstream source;
 
-        "   PROCEDURE AlphaA(a : INTEGER);"
-        "      VAR b : INTEGER;"
+  std::ifstream file("../src/source.pas");
 
-        "      PROCEDURE Beta(c : INTEGER);"
-        "         VAR y : INTEGER;"
+  if(!file.is_open()) {
+    std::cout << "cannot open file\n";
+  }
 
-        "         PROCEDURE Gamma(c : INTEGER);"
-        "            VAR x : INTEGER;"
-        "         BEGIN { Gamma }"
-        "            x := a + b + c + x + y + z;"
-        "         END;  { Gamma }"
+  std::string line;
 
-        "      BEGIN { Beta }"
+  while(std::getline(file, line)) {
+    source << line + "\n";
+  }
 
-        "      END;  { Beta }"
+  file.close();
 
-        "   BEGIN { AlphaA }"
+  std::string code = source.str();
 
-        "   END;  { AlphaA }"
-
-        "   PROCEDURE AlphaB(a : INTEGER);"
-        "      VAR c : REAL;"
-        "   BEGIN { AlphaB }"
-        "      c := a + b;"
-        "   END;  { AlphaB }"
-
-        "BEGIN { Main }"
-        "END.  { Main }";
-
-  Lexer lexer(source);
+  Lexer lexer(code);
   Parser parser(lexer);
 
   Interpreter interpreter(parser);
