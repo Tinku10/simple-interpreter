@@ -42,6 +42,10 @@ void ProcedureDeclNode::accept(SourceToSourceCompilerVisitor& v) {
   v.visit(*this);
 }
 
+void ProcedureCallNode::accept(SourceToSourceCompilerVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(SourceToSourceCompilerVisitor& v) {
   v.visit(*this);
 }
@@ -96,7 +100,7 @@ void SourceToSourceCompilerVisitor::visit(AssignNode& node) {
 }
 
 void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
-  return;
+  std::cout << node.token.value;
 }
 
 void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
@@ -196,6 +200,20 @@ void SourceToSourceCompilerVisitor::visit(ProcedureDeclNode& node) {
   node.block->accept(*this);
 
   current_scope = current_scope->parent_scope;
+}
+
+void SourceToSourceCompilerVisitor::visit(ProcedureCallNode& node) {
+  std::cout << std::string(level * 2, ' ');
+  std::cout << node.name << "(";
+
+  for (auto& child : node.params) {
+    child->accept(*this);
+
+    bool not_last = node.params.size() - (&child - & node.params[0]) - 1;
+    if(not_last) std::cout << ", ";
+  }
+
+  std::cout << ")";
 }
 
 void SourceToSourceCompilerVisitor::visit(ParamsNode& node) {

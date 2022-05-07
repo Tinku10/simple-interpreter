@@ -42,6 +42,10 @@ void ProcedureDeclNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
 
+void ProcedureCallNode::accept(SymbolTableVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
@@ -172,6 +176,18 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
   current_scope = current_scope->parent_scope;
 
   std::cout << "Leave Procedure scope\n";
+}
+
+void SymbolTableVisitor::visit(ProcedureCallNode& node) {
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(node.name, node.params.size());
+
+  if(!symbol) {
+    throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
+  }
+
+  for (auto& child : node.params) {
+    child->accept(*this);
+  }
 }
 
 void SymbolTableVisitor::visit(ParamsNode& node) {

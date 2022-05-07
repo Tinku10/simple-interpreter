@@ -135,6 +135,18 @@ class ProcedureDeclNode : public Node {
   void accept(SourceToSourceCompilerVisitor& v) override;
 };
 
+class ProcedureCallNode : public Node {
+public:
+  Token token;
+  std::string name;
+  std::vector<std::shared_ptr<Node>> params;
+
+  ProcedureCallNode(Token& token, std::string& name, std::vector<std::shared_ptr<Node>>& params);
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
+};
+
 class ParamsNode : public Node {
  public:
   std::shared_ptr<Node> var;
@@ -175,6 +187,7 @@ class Visitor {
   virtual void visit(BlockNode& node) = 0;
   virtual void visit(VarDeclNode& node) = 0;
   virtual void visit(ProcedureDeclNode& node) = 0;
+  virtual void visit(ProcedureCallNode& node) = 0;
   virtual void visit(ParamsNode& node) = 0;
   virtual void visit(TypeNode& node) = 0;
   virtual void visit(NoOpNode& node) = 0;
@@ -184,8 +197,10 @@ class NodeVisitor : public Visitor {
  public:
   int value;
   std::string name;
-
   CallStack callstack;
+
+  NodeVisitor();
+
   void visit(BinaryNode& node) override;
   void visit(UnaryNode& node) override;
   void visit(AssignNode& node) override;
@@ -196,6 +211,7 @@ class NodeVisitor : public Visitor {
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
+  void visit(ProcedureCallNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
@@ -220,9 +236,12 @@ class SymbolTableVisitor : public Visitor {
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
+  void visit(ProcedureCallNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
+
+  Exception error(ErrorCode code, Token& token);
 };
 
 class SourceToSourceCompilerVisitor : public Visitor {
@@ -244,6 +263,7 @@ class SourceToSourceCompilerVisitor : public Visitor {
   void visit(BlockNode& node) override;
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
+  void visit(ProcedureCallNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;

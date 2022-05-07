@@ -32,10 +32,12 @@ class ScopedSymbolTable {
   template <typename T>
   void add(T symbol) {
     /* std::cout << "Insert symbol " << symbol->name << "\n"; */
-    symbols[symbol->name] = std::make_shared<SymbolWithScope>(SymbolWithScope(symbol, scope_name, scope_level));
+    symbols[symbol->name] = std::make_shared<SymbolWithScope>(
+        SymbolWithScope(symbol, scope_name, scope_level));
   }
 
-  std::shared_ptr<SymbolWithScope> at(std::string& name, uint max_scope_jump = INT_MAX);
+  std::shared_ptr<SymbolWithScope> at(std::string& name, uint args_size = 0, 
+                                      uint max_scope_jump = INT_MAX);
 
   friend std::ostream& operator<<(std::ostream& cout,
                                   ScopedSymbolTable& symbols);

@@ -28,7 +28,8 @@ CompoundNode::CompoundNode(std::vector<std::shared_ptr<Node>>& children)
     : children(children) {
 }
 
-ProgramNode::ProgramNode(std::shared_ptr<Node> var, std::shared_ptr<Node> child) : var(var), child(child) {
+ProgramNode::ProgramNode(std::shared_ptr<Node> var, std::shared_ptr<Node> child)
+    : var(var), child(child) {
 }
 
 BlockNode::BlockNode(std::vector<std::shared_ptr<Node>>& declarations,
@@ -44,6 +45,12 @@ ProcedureDeclNode::ProcedureDeclNode(std::string name,
                                      std::vector<std::shared_ptr<Node>>& params,
                                      std::shared_ptr<Node> block)
     : name(name), params(params), block(block) {
+}
+
+ProcedureCallNode::ProcedureCallNode(Token& token,
+                                     std::string& name,
+                                     std::vector<std::shared_ptr<Node>>& params)
+    : token(token), name(name), params(params) {
 }
 
 ParamsNode::ParamsNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
@@ -93,6 +100,10 @@ void ProcedureDeclNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
+void ProcedureCallNode::accept(NodeVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
@@ -103,6 +114,9 @@ void TypeNode::accept(NodeVisitor& v) {
 
 void NoOpNode::accept(NodeVisitor& v) {
   v.visit(*this);
+}
+
+NodeVisitor::NodeVisitor() : callstack(CallStack()) {
 }
 
 void NodeVisitor::visit(BinaryNode& node) {
@@ -132,20 +146,19 @@ void NodeVisitor::visit(UnaryNode& node) {
 
 void NodeVisitor::visit(VarNode& node) {
   name = node.token.value;
-  if (callstack.cache.count(name))
-    value = callstack.cache.at(name);
-  else
-    callstack.cache[name] = 0;
+  value = callstack.top()->at(name);
 
   /* throw std::invalid_argument("Undeclared identifier"); */
 }
 
 void NodeVisitor::visit(AssignNode& node) {
-  node.left->accept(*this);
-  std::string left = name;
+  std::string left = std::static_pointer_cast<VarNode>(node.left)->token.value;
+
   node.right->accept(*this);
   int right = value;
-  callstack.cache[left] = right;
+
+  callstack.top()->add(left, right);
+  /* callstack.cache[left] = right; */
 
   std::cout << left << " = " << right << "\n";
 }
@@ -162,7 +175,12 @@ void NodeVisitor::visit(CompoundNode& node) {
 }
 
 void NodeVisitor::visit(ProgramNode& node) {
+  callstack.push(std::move(std::make_unique<ActivationRecords>(
+      ActivationRecords("PROGRAM", ActivationRecordType::PROGRAM, 1))));
+
   node.child->accept(*this);
+
+  callstack.pop();
 }
 
 void NodeVisitor::visit(BlockNode& node) {
@@ -179,6 +197,12 @@ void NodeVisitor::visit(VarDeclNode& node) {
 
 void NodeVisitor::visit(ProcedureDeclNode& node) {
   return;
+}
+
+void NodeVisitor::visit(ProcedureCallNode& node) {
+  for (auto& child : node.params) {
+    child->accept(*this);
+  }
 }
 
 void NodeVisitor::visit(ParamsNode& node) {

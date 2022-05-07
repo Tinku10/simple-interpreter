@@ -31,13 +31,26 @@ void ScopedSymbolTable::initialize() {
 }
 
 std::shared_ptr<SymbolWithScope> ScopedSymbolTable::at(std::string& name,
+                                                       uint args_size,
                                                        uint max_scope_jump) {
   std::shared_ptr<ScopedSymbolTable> scope
       = std::make_shared<ScopedSymbolTable>(*this);
 
   while (scope && max_scope_jump--) {
     /* std::cout << name << " lookup at " << scope->scope_name << " scope\n"; */
-    if (scope->symbols.count(name)) return scope->symbols.at(name);
+    if (scope->symbols.count(name)) {
+      std::shared_ptr<SymbolWithScope> symbol = scope->symbols.at(name);
+
+      std::shared_ptr<ProcedureSymbol> procedure_symbol
+          = std::dynamic_pointer_cast<ProcedureSymbol>(symbol->symbol);
+
+      if (procedure_symbol) {
+        if (procedure_symbol->declarations.size() == args_size) return symbol;
+
+        return nullptr;
+      }
+      if (symbol->symbol) return scope->symbols.at(name);
+    }
 
     scope = scope->parent_scope;
   }

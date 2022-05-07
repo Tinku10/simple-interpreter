@@ -94,7 +94,9 @@ std::shared_ptr<Node> Parser::statement() {
 std::shared_ptr<Node> Parser::procedure_call_statement() {
   Token token = current_token;
 
-  std::shared_ptr<Node> id = var();
+  std::string name = token.value;
+
+  std::shared_ptr<Node> id = factor();
 
   eat(TokenType::L_PAREN);
 
@@ -111,7 +113,7 @@ std::shared_ptr<Node> Parser::procedure_call_statement() {
 
   eat(TokenType::R_PAREN);
 
-  return std::make_shared<ProcedureCallNode>(ProcedureCallNode(token, token.value, v));
+  return std::make_shared<ProcedureCallNode>(ProcedureCallNode(token, name, v));
 }
 
 std::shared_ptr<Node> Parser::statement_list() {
