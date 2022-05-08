@@ -32,6 +32,7 @@ class ScopedSymbolTable {
   template <typename T>
   void add(T symbol) {
     /* std::cout << "Insert symbol " << symbol->name << "\n"; */
+    symbol->scope_level = scope_level;
     symbols[symbol->name] = std::make_shared<SymbolWithScope>(
         SymbolWithScope(symbol, scope_name, scope_level));
   }

@@ -1,10 +1,13 @@
 #include <iostream>
 #include <vector>
 
+class Node;
+
 class Symbol {
  public:
   std::string name;
   std::shared_ptr<Symbol> type;
+  uint scope_level;
 
   Symbol(std::string& name, std::shared_ptr<Symbol> type = nullptr);
 
@@ -33,6 +36,7 @@ class VarTypeSymbol : public Symbol {
 class ProcedureSymbol : public Symbol {
  public:
   std::vector<std::shared_ptr<Symbol>> declarations;
+  std::shared_ptr<Node> block;
 
   ProcedureSymbol(std::string& name,
                   std::vector<std::shared_ptr<Symbol>>& declarations);

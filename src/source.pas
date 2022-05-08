@@ -1,6 +1,22 @@
 PROGRAM Main;
-VAR x, y : INTEGER;
+
+PROCEDURE Alpha(a : INTEGER; b : INTEGER);
+VAR x : INTEGER;
+
+   PROCEDURE Beta(a : INTEGER; b : INTEGER);
+   VAR x : INTEGER;
+   BEGIN
+      x := a * 10 + b * 2;
+   END;
+
+BEGIN
+   x := (a + b ) * 2;
+
+   Beta(5, 10);      { procedure call }
+END;
+
 BEGIN { Main }
-   y := 7;
-   x := (y + 3) * 3;
+
+   Alpha(3 + 5, 7);  { procedure call }
+
 END.  { Main }

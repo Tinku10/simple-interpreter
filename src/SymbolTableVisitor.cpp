@@ -131,8 +131,7 @@ void SymbolTableVisitor::visit(VarDeclNode& node) {
 
   std::shared_ptr<SymbolWithScope> symbol = current_scope->at(type);
 
-  std::cout << name << " " << type << "\n";
-  if (current_scope->at(name, 1)) {
+  if (current_scope->at(name, 0, 1)) {
     throw error(ErrorCode::DUPLICATE_IDENTIFIER,
                 std::dynamic_pointer_cast<VarNode>(node.var)->token);
     /* throw std::invalid_argument("Duplicated identifier found"); */
@@ -143,7 +142,7 @@ void SymbolTableVisitor::visit(VarDeclNode& node) {
 }
 
 void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
-  std::cout << "Enter Procedure scope\n";
+  std::cout << "Enter " << node.name << " scope\n";
 
   current_scope = std::make_shared<ScopedSymbolTable>(ScopedSymbolTable(
       std::move(node.name), current_scope->scope_level + 1, current_scope));
@@ -164,10 +163,13 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
     current_scope->add(var);
     list.push_back(var);
     child->accept(*this);
+
   }
 
   std::shared_ptr<ProcedureSymbol> symbol
       = std::make_shared<ProcedureSymbol>(ProcedureSymbol(node.name, list));
+
+  symbol->block = node.block;
 
   current_scope->parent_scope->add(symbol);
 
@@ -175,15 +177,19 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
 
   current_scope = current_scope->parent_scope;
 
-  std::cout << "Leave Procedure scope\n";
+  std::cout << "Leave " << node.name << " scope\n";
 }
 
 void SymbolTableVisitor::visit(ProcedureCallNode& node) {
-  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(node.name, node.params.size());
+  std::shared_ptr<SymbolWithScope> symbol
+      = current_scope->at(node.name, node.params.size());
 
-  if(!symbol) {
+  if (!symbol) {
     throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
   }
+
+  node.procedure_symbol
+      = std::dynamic_pointer_cast<ProcedureSymbol>(symbol->symbol);
 
   for (auto& child : node.params) {
     child->accept(*this);

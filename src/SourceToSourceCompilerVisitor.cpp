@@ -100,7 +100,7 @@ void SourceToSourceCompilerVisitor::visit(AssignNode& node) {
 }
 
 void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
-  std::cout << node.token.value;
+  value = node.token.value;
 }
 
 void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
@@ -184,12 +184,12 @@ void SourceToSourceCompilerVisitor::visit(ProcedureDeclNode& node) {
     current_scope->add(var);
     list.push_back(var);
     child->accept(*this);
+
+    uint is_last = node.params.size() - (&child - &node.params[0]) - 1;
+
+    if(is_last) std::cout << "; ";
   }
 
-  /* for (auto& child : list) { */
-  /*   std::cout << current_scope->at(child->name)->symbol->name << ": " <<
-   * child->type->name; */
-  /* } */
   std::cout << ");\n";
 
   std::shared_ptr<ProcedureSymbol> symbol
@@ -208,6 +208,8 @@ void SourceToSourceCompilerVisitor::visit(ProcedureCallNode& node) {
 
   for (auto& child : node.params) {
     child->accept(*this);
+
+    std::cout << value;
 
     bool not_last = node.params.size() - (&child - & node.params[0]) - 1;
     if(not_last) std::cout << ", ";

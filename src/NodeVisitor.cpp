@@ -200,9 +200,26 @@ void NodeVisitor::visit(ProcedureDeclNode& node) {
 }
 
 void NodeVisitor::visit(ProcedureCallNode& node) {
+  callstack.push(std::make_unique<ActivationRecords>(
+      ActivationRecords(node.name, ActivationRecordType::PROCEDURE,
+                        node.procedure_symbol->scope_level + 1)));
+
+  std::vector<std::shared_ptr<Symbol>> formal_parameters
+      = node.procedure_symbol->declarations;
+
   for (auto& child : node.params) {
+    uint index = &child - &node.params[0];
+
     child->accept(*this);
+
+    // match format parameter to actual parameter
+    callstack.top()->add(formal_parameters[index]->name, value);
   }
+
+  // visit the procedure body
+  node.procedure_symbol->block->accept(*this);
+
+  callstack.pop();
 }
 
 void NodeVisitor::visit(ParamsNode& node) {

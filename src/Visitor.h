@@ -140,6 +140,7 @@ public:
   Token token;
   std::string name;
   std::vector<std::shared_ptr<Node>> params;
+  std::shared_ptr<ProcedureSymbol> procedure_symbol;
 
   ProcedureCallNode(Token& token, std::string& name, std::vector<std::shared_ptr<Node>>& params);
   void accept(NodeVisitor& v) override;
