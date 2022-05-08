@@ -146,8 +146,7 @@ void NodeVisitor::visit(UnaryNode& node) {
 
 void NodeVisitor::visit(VarNode& node) {
   name = node.token.value;
-  value = callstack.top()->at(name);
-
+  value = callstack.at(name);
   /* throw std::invalid_argument("Undeclared identifier"); */
 }
 
@@ -160,7 +159,7 @@ void NodeVisitor::visit(AssignNode& node) {
   callstack.top()->add(left, right);
   /* callstack.cache[left] = right; */
 
-  std::cout << left << " = " << right << "\n";
+  /*   std::cout << left << " = " << right << "\n"; */
 }
 
 void NodeVisitor::visit(LiteralNode& node) {
@@ -218,6 +217,8 @@ void NodeVisitor::visit(ProcedureCallNode& node) {
 
   // visit the procedure body
   node.procedure_symbol->block->accept(*this);
+
+  std::cout << callstack << "\n";
 
   callstack.pop();
 }

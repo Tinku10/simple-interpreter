@@ -85,10 +85,10 @@ void SymbolTableVisitor::visit(AssignNode& node) {
 
   std::string var = name;
 
-  if (current_scope->at(var) == nullptr) {
-    throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
-    /* std::invalid_argument("Undeclared identifier"); */
-  }
+  /* if (current_scope->at(var) == nullptr) { */
+  /*   throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token); */
+  /*   /1* std::invalid_argument("Undeclared identifier"); *1/ */
+  /* } */
 
   node.right->accept(*this);
 }
@@ -163,7 +163,6 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
     current_scope->add(var);
     list.push_back(var);
     child->accept(*this);
-
   }
 
   std::shared_ptr<ProcedureSymbol> symbol

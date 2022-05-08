@@ -11,9 +11,23 @@ void ActivationRecords::add(std::string& name, int value) {
 }
 
 int ActivationRecords::at(std::string& name) {
-  if (members.count(name)) return members.at(name);
+  /* if (members.count(name)) return members.at(name); */
 
-  throw error(ErrorCode::IDENTIFIER_NOT_FOUND);
+  /* throw error(ErrorCode::IDENTIFIER_NOT_FOUND); */
+}
+
+std::ostream& operator<<(std::ostream& cout, ActivationRecords& stack_frame) {
+  std::cout << "--------------------------\n";
+  std::cout << stack_frame.level << ".\t" << stack_frame.name << "\n";
+
+  std::cout << "members\n-------\n";
+
+  for (auto& e : stack_frame.members) {
+    cout << e.first << "\t" << e.second << "\n";
+  }
+  std::cout << "--------------------------\n";
+
+  return cout;
 }
 
 Exception ActivationRecords::error(ErrorCode code) {
@@ -41,4 +55,49 @@ void CallStack::pop() {
 
 std::unique_ptr<ActivationRecords>& CallStack::top() {
   return stack.top();
+}
+
+int CallStack::at(std::string& name) {
+  /* std::cout << "resolving " << name << " at " */
+  /*           << " " << top()->name << "\n"; */
+  /* std::cout << *top() << "\n"; */
+
+  if (top()->members.count(name)) return top()->members[name];
+  std::cout << top()->members[name] << "\n";
+
+  std::unique_ptr<ActivationRecords> stack_frame = std::move(top());
+
+  if (stack.empty()) throw error(ErrorCode::IDENTIFIER_NOT_FOUND);
+
+  pop();
+  int value = at(name);
+  push(std::move(stack_frame));
+
+  return value;
+}
+
+std::ostream& operator<<(std::ostream& cout, CallStack& callstack) {
+  if (callstack.stack.empty()) return cout;
+  /* while(!callstack.stack.empty()) { */
+  std::unique_ptr<ActivationRecords> stack_frame = std::move(callstack.top());
+
+  cout << *stack_frame << "\n";
+
+  callstack.pop();
+  cout << callstack << "\n";
+  callstack.push(std::move(stack_frame));
+  /* } */
+  return cout;
+}
+
+Exception CallStack::error(ErrorCode code) {
+  std::string msg = "";
+  switch (code) {
+    case ErrorCode::IDENTIFIER_NOT_FOUND:
+      msg = "undeclared identifier\n";
+      break;
+    default: msg = "unknown error\n";
+  }
+
+  throw Exception(code, msg);
 }

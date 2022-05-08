@@ -36,8 +36,10 @@ std::shared_ptr<SymbolWithScope> ScopedSymbolTable::at(std::string& name,
   std::shared_ptr<ScopedSymbolTable> scope
       = std::make_shared<ScopedSymbolTable>(*this);
 
+  /* std::cout << "----------------------------\n"; */
   while (scope && max_scope_jump--) {
-    /* std::cout << name << " lookup at " << scope->scope_name << " scope\n"; */
+    /* std::cout << name << " lookup at " << scope->scope_name << " " <<
+     * scope_level << " scope\n"; */
     if (scope->symbols.count(name)) {
       std::shared_ptr<SymbolWithScope> symbol = scope->symbols.at(name);
 
@@ -54,6 +56,7 @@ std::shared_ptr<SymbolWithScope> ScopedSymbolTable::at(std::string& name,
 
     scope = scope->parent_scope;
   }
+  /* std::cout << "----------------------------\n"; */
 
   /* if (symbols.count(name)) return symbols.at(name); */
   return nullptr;

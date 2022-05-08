@@ -25,6 +25,9 @@ class ActivationRecords {
   int at(std::string& name);
 
   Exception error(ErrorCode code);
+
+  friend std::ostream& operator<<(std::ostream& cout,
+                                  ActivationRecords& stack_frame);
 };
 
 class CallStack {
@@ -37,4 +40,10 @@ class CallStack {
   void push(std::unique_ptr<ActivationRecords> stack_frame);
   void pop();
   std::unique_ptr<ActivationRecords>& top();
+
+  int at(std::string& name);
+
+  Exception error(ErrorCode code);
+
+  friend std::ostream& operator<<(std::ostream& cout, CallStack& callstack);
 };
