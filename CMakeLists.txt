@@ -22,7 +22,7 @@ add_executable(${PROJECT_NAME}
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
-set (CMAKE_CXX_FLAGS "-fexceptions -Wall -fsanitize=address")
+set (CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++17 -Wformat=2 -Wfloat-equal -Wconversion -Wcast-qual -Wunused-variable -Wcast-align -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fstack-protector  -DDEBUG")
 
 # generate compiler commands to help clangd find include paths
 # even if not set, there is no error in compilation and linking but neovim diagnostics shows error

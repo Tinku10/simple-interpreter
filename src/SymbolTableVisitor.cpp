@@ -160,9 +160,9 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
     std::shared_ptr<ParamsNode> param
         = std::static_pointer_cast<ParamsNode>(child);
     std::string& name
-        = std::static_pointer_cast<VarNode>(param->var)->token.value;
+        = std::dynamic_pointer_cast<VarNode>(param->var)->token.value;
     std::string& type
-        = std::static_pointer_cast<VarNode>(param->type)->token.value;
+        = std::dynamic_pointer_cast<TypeNode>(param->type)->token.value;
 
     std::shared_ptr<VarTypeSymbol> var = std::make_shared<VarTypeSymbol>(
         VarTypeSymbol(name, current_scope->at(type)->symbol));
@@ -188,7 +188,7 @@ void SymbolTableVisitor::visit(ProcedureDeclNode& node) {
 
 void SymbolTableVisitor::visit(ProcedureCallNode& node) {
   std::shared_ptr<SymbolWithScope> symbol
-      = current_scope->at(node.name, node.params.size());
+      = current_scope->at(node.name, (uint)node.params.size());
 
   if (!symbol) {
     throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);

@@ -151,10 +151,9 @@ void NodeVisitor::visit(VarNode& node) {
 }
 
 void NodeVisitor::visit(AssignNode& node) {
-  std::shared_ptr<VarNode> left_node = std::static_pointer_cast<VarNode>(node.left);
+  std::shared_ptr<VarNode> left_node = std::dynamic_pointer_cast<VarNode>(node.left);
   std::string left = left_node->token.value;
 
-  std::cout << left_node->token << ">>>>>>>>>>>>\n";
   node.right->accept(*this);
   
   std::shared_ptr<DataType> right = value;
@@ -171,7 +170,7 @@ void NodeVisitor::visit(LiteralNode& node) {
     case TokenType::REAL_CONST:
       value = std::make_shared<FloatType>(stof(node.token.value));
       break;
-    case TokenType::STRING:
+    case TokenType::STRING_CONST:
       value = std::make_shared<StringType>(node.token.value);
       break;
     default: std::invalid_argument("literal type not supported");

@@ -18,6 +18,7 @@ enum struct TokenType {
   SEMI,
   COMMA,
   COLON,
+  QUOTES,
 
   NOT_EQUAL,
   GT_EQUAL,
@@ -31,6 +32,7 @@ enum struct TokenType {
   REAL,
   INTEGER_CONST,
   REAL_CONST,
+  STRING_CONST,
 
   IF,
   ELSE,

@@ -4,7 +4,8 @@ std::unordered_map<std::string, TokenType> reserved_keywords
     = {{"BEGIN", TokenType::BEGIN}, {"END", TokenType::END},
        {"VAR", TokenType::VAR},     {"PROGRAM", TokenType::PROGRAM},
        {"DIV", TokenType::INT_DIV}, {"INTEGER", TokenType::INTEGER},
-       {"REAL", TokenType::REAL},   {"PROCEDURE", TokenType::PROCEDURE}};
+       {"REAL", TokenType::REAL},   {"PROCEDURE", TokenType::PROCEDURE},
+       {"STRING", TokenType::STRING}};
 
 Lexer::Lexer(std::string& source) : source(source), line(0), col(0) {
 }
@@ -98,8 +99,8 @@ Token Lexer::add_token(TokenType type) {
   uint start = col;
 
   switch (type) {
-    case TokenType::STRING:
-      return Token(type, string(), start + 1, index - 1, line);
+    case TokenType::QUOTES:
+      return Token(TokenType::STRING_CONST, string(), start + 1, index - 1, line);
     case TokenType::ID: {
       std::string identifier = id();
       if (reserved_keywords.count(identifier))
@@ -222,7 +223,7 @@ Token Lexer::get_next_token() {
         return add_token(TokenType::LESS_THAN);
     case '!':
       if (peek() == '=') return add_token(TokenType::NOT_EQUAL);
-    case '"': return add_token(TokenType::STRING);
+    case '"': return add_token(TokenType::QUOTES);
     case '.': return add_token(TokenType::DOT);
     case ';': return add_token(TokenType::SEMI);
     case ',': return add_token(TokenType::COMMA);

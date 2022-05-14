@@ -3,6 +3,7 @@ PROGRAM Main;
 PROCEDURE Alpha(a : INTEGER; b : INTEGER);
 VAR x : INTEGER;
 VAR y : REAL;
+VAR z : STRING;
 
    PROCEDURE Beta(a : INTEGER; b : INTEGER);
    VAR x : INTEGER;
@@ -14,9 +15,10 @@ VAR y : REAL;
 BEGIN
    x := (a + b ) * 2;
    y := 1.1 + 3.2;
+   z := "hello" + " strings";
 
 
-   Beta(x, 1);      { procedure call }
+   Beta(x, 1.2);      { procedure call }
 
 END;
 

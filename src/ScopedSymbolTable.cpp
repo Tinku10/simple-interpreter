@@ -1,4 +1,5 @@
 #include "ScopedSymbolTable.h"
+#include "TokenType.h"
 
 #include <vector>
 
@@ -23,9 +24,9 @@ ScopedSymbolTable::ScopedSymbolTable(
 }
 
 void ScopedSymbolTable::initialize() {
-  std::string types[] = {"INTEGER", "REAL"};
+  std::string types[] = {"INTEGER", "REAL", "STRING"};
 
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 3; i++) {
     add(std::make_shared<BuiltInTypeSymbol>(BuiltInTypeSymbol(types[i])));
   }
 }
