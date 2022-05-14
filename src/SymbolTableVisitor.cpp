@@ -74,10 +74,17 @@ void SymbolTableVisitor::visit(UnaryNode& node) {
 
 void SymbolTableVisitor::visit(VarNode& node) {
   name = node.token.value;
-  if (current_scope->at(name) == nullptr) {
+
+  std::shared_ptr<SymbolWithScope> symbol = current_scope->at(name);
+
+  if (symbol == nullptr) {
     throw error(ErrorCode::IDENTIFIER_NOT_FOUND, node.token);
     /* std::invalid_argument("Undeclared identifier"); */
   }
+
+  node.type_symbol = symbol->symbol;
+
+  /* node.var_symbol = std::static_pointer_cast<VarTypeSymbol>(symbol->symbol); */
 }
 
 void SymbolTableVisitor::visit(AssignNode& node) {

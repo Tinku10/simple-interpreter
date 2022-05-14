@@ -6,11 +6,11 @@ ActivationRecords::ActivationRecords(const std::string& name,
     : name(name), type(type), level(level) {
 }
 
-void ActivationRecords::add(std::string& name, int value) {
+void ActivationRecords::add(std::string& name, std::shared_ptr<DataType> value) {
   members[name] = value;
 }
 
-int ActivationRecords::at(std::string& name) {
+std::shared_ptr<DataType> ActivationRecords::at(std::string& name) {
   /* if (members.count(name)) return members.at(name); */
 
   /* throw error(ErrorCode::IDENTIFIER_NOT_FOUND); */
@@ -57,20 +57,19 @@ std::unique_ptr<ActivationRecords>& CallStack::top() {
   return stack.top();
 }
 
-int CallStack::at(std::string& name) {
+std::shared_ptr<DataType> CallStack::at(std::string& name) {
   /* std::cout << "resolving " << name << " at " */
   /*           << " " << top()->name << "\n"; */
   /* std::cout << *top() << "\n"; */
 
   if (top()->members.count(name)) return top()->members[name];
-  std::cout << top()->members[name] << "\n";
 
   std::unique_ptr<ActivationRecords> stack_frame = std::move(top());
 
   if (stack.empty()) throw error(ErrorCode::IDENTIFIER_NOT_FOUND);
 
   pop();
-  int value = at(name);
+  std::shared_ptr<DataType> value = at(name);
   push(std::move(stack_frame));
 
   return value;

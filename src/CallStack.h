@@ -6,6 +6,7 @@
 
 #include "Exceptions.h"
 #include "Token.h"
+#include "DataType.h"
 
 enum struct ActivationRecordType { PROGRAM, PROCEDURE };
 
@@ -14,15 +15,15 @@ class ActivationRecords {
   std::string name;
   ActivationRecordType type;
   uint level;
-  std::map<std::string, int> members;
+  std::map<std::string, std::shared_ptr<DataType>> members;
 
   ActivationRecords(const std::string& name,
                     ActivationRecordType type,
                     uint level);
 
-  void add(std::string& name, int value);
+  void add(std::string& name, std::shared_ptr<DataType> value);
 
-  int at(std::string& name);
+  std::shared_ptr<DataType> at(std::string& name);
 
   Exception error(ErrorCode code);
 
@@ -32,7 +33,7 @@ class ActivationRecords {
 
 class CallStack {
  public:
-  std::map<std::string, int> cache;
+  std::map<std::string, std::shared_ptr<DataType>> cache;
   std::stack<std::unique_ptr<ActivationRecords>> stack;
 
   CallStack();
@@ -41,7 +42,7 @@ class CallStack {
   void pop();
   std::unique_ptr<ActivationRecords>& top();
 
-  int at(std::string& name);
+  std::shared_ptr<DataType> at(std::string& name);
 
   Exception error(ErrorCode code);
 

@@ -18,10 +18,13 @@ add_executable(${PROJECT_NAME}
   src/SourceToSourceCompilerVisitor.cpp
   src/Exceptions.cpp
   src/CallStack.cpp
+  src/DataType.cpp
 )
+
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
+set (CMAKE_CXX_FLAGS "-fexceptions -Wall -fsanitize=address")
 
 # generate compiler commands to help clangd find include paths
 # even if not set, there is no error in compilation and linking but neovim diagnostics shows error
 set(DCMAKE_EXPORT_COMPILE_COMMANDS 1 CACHE INTERNAL "")
-
-set(CMAKE_CXX_STANDARD 17)
+set(DCMAKE_BUILD_TYPE Debug)

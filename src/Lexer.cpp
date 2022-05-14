@@ -38,7 +38,7 @@ void Lexer::skip_comments() {
 }
 
 Token Lexer::number() {
-  uint start = index;
+  uint start = col;
 
   std::string result = "";
   while (index < source.length() && isdigit(source[index])) {
@@ -54,11 +54,11 @@ Token Lexer::number() {
       advance();
     }
 
-    return Token(TokenType::REAL_CONST, std::move(result), start, index + 1,
+    return Token(TokenType::REAL_CONST, std::move(result), start, col + 1,
                  line);
   }
 
-  return Token(TokenType::INTEGER_CONST, std::move(result), start, index + 1,
+  return Token(TokenType::INTEGER_CONST, std::move(result), start, col + 1,
                line);
 }
 

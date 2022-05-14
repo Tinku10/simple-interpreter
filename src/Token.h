@@ -3,6 +3,7 @@
 #include <iostream>
 #include "TokenType.h"
 #include "Exceptions.h"
+#include "DataType.h"
 
 class Token {
 public:

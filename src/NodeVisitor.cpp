@@ -121,16 +121,16 @@ NodeVisitor::NodeVisitor() : callstack(CallStack()) {
 
 void NodeVisitor::visit(BinaryNode& node) {
   node.left->accept(*this);
-  int left = value;
+  std::shared_ptr<DataType> left = value;
   node.right->accept(*this);
-  int right = value;
+  std::shared_ptr<DataType> right = value;
 
   switch (node.token.type) {
-    case TokenType::PLUS: value = left + right; break;
-    case TokenType::MINUS: value = left - right; break;
-    case TokenType::MULTIPLY: value = left * right; break;
-    case TokenType::INT_DIV: value = left / right; break;
-    case TokenType::FLOAT_DIV: value = left / (float)right; break;
+    case TokenType::PLUS: value = *left + *right; break;
+    case TokenType::MINUS: value = *left - *right; break;
+    case TokenType::MULTIPLY: value = *left * *right; break;
+    case TokenType::INT_DIV: value = *left / *right; break;
+    case TokenType::FLOAT_DIV: value = *left / *right; break;
     default: throw std::invalid_argument("Invalid binary operator");
   }
 }
@@ -139,7 +139,7 @@ void NodeVisitor::visit(UnaryNode& node) {
   node.node->accept(*this);
   switch (node.token.type) {
     case TokenType::PLUS: value = value; break;
-    case TokenType::MINUS: value = -value; break;
+    case TokenType::MINUS: value = -(*value); break;
     default: throw std::invalid_argument("Invalid unary operator");
   }
 }
@@ -151,20 +151,32 @@ void NodeVisitor::visit(VarNode& node) {
 }
 
 void NodeVisitor::visit(AssignNode& node) {
-  std::string left = std::static_pointer_cast<VarNode>(node.left)->token.value;
+  std::shared_ptr<VarNode> left_node = std::static_pointer_cast<VarNode>(node.left);
+  std::string left = left_node->token.value;
 
+  std::cout << left_node->token << ">>>>>>>>>>>>\n";
   node.right->accept(*this);
-  int right = value;
+  
+  std::shared_ptr<DataType> right = value;
 
   callstack.top()->add(left, right);
   /* callstack.cache[left] = right; */
-
-  /*   std::cout << left << " = " << right << "\n"; */
 }
 
 void NodeVisitor::visit(LiteralNode& node) {
-  // int type only for now
-  value = stoi(node.token.value);
+  switch (node.token.type) {
+    case TokenType::INTEGER_CONST:
+      value = std::make_shared<IntType>(stoi(node.token.value));
+      break;
+    case TokenType::REAL_CONST:
+      value = std::make_shared<FloatType>(stof(node.token.value));
+      break;
+    case TokenType::STRING:
+      value = std::make_shared<StringType>(node.token.value);
+      break;
+    default: std::invalid_argument("literal type not supported");
+  }
+  /* value = node.token.value; */
 }
 
 void NodeVisitor::visit(CompoundNode& node) {

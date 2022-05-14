@@ -1,8 +1,10 @@
 #include <vector>
 
 #include "CallStack.h"
+#include "DataType.h"
 #include "ScopedSymbolTable.h"
 #include "Token.h"
+#include "variant"
 
 class NodeVisitor;
 class SymbolTableVisitor;
@@ -59,6 +61,7 @@ class AssignNode : public Node {
 class VarNode : public Node {
  public:
   Token token;
+  std::shared_ptr<Symbol> type_symbol;
 
   VarNode(Token token);
   void accept(NodeVisitor& v) override;
@@ -136,13 +139,15 @@ class ProcedureDeclNode : public Node {
 };
 
 class ProcedureCallNode : public Node {
-public:
+ public:
   Token token;
   std::string name;
   std::vector<std::shared_ptr<Node>> params;
   std::shared_ptr<ProcedureSymbol> procedure_symbol;
 
-  ProcedureCallNode(Token& token, std::string& name, std::vector<std::shared_ptr<Node>>& params);
+  ProcedureCallNode(Token& token,
+                    std::string& name,
+                    std::vector<std::shared_ptr<Node>>& params);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
@@ -196,7 +201,7 @@ class Visitor {
 
 class NodeVisitor : public Visitor {
  public:
-  int value;
+  std::shared_ptr<DataType> value;
   std::string name;
   CallStack callstack;
 

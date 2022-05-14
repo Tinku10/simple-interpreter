@@ -1,0 +1,183 @@
+#include "DataType.h"
+
+DataType::DataType() {
+}
+
+void DataType::error(const std::string& left,
+                     const std::string& op,
+                     const std::string& right) {
+  std::string msg = "cannot perform " + left + " " + op + " " + right;
+  throw std::invalid_argument(msg);
+}
+
+DataType::~DataType() {
+}
+
+std::ostream& operator<<(std::ostream& cout, std::shared_ptr<DataType> var) {
+  std::shared_ptr<IntType> right = std::dynamic_pointer_cast<IntType>(var);
+  if (right == nullptr) {
+    std::shared_ptr<FloatType> right
+        = std::dynamic_pointer_cast<FloatType>(var);
+    if (right == nullptr) {
+      std::shared_ptr<StringType> right
+          = std::dynamic_pointer_cast<StringType>(var);
+      if (right == nullptr) {
+        throw std::invalid_argument("unknown type to print");
+      }
+      cout << right->value;
+      return cout;
+    }
+    cout << right->value;
+    return cout;
+  }
+  cout << right->value;
+  return cout;
+}
+
+IntType::IntType() {
+}
+IntType::IntType(int value) : value(value) {
+}
+IntType::~IntType() {
+}
+
+FloatType::FloatType() {
+}
+FloatType::FloatType(float value) : value(value) {
+}
+FloatType::~FloatType() {
+}
+
+StringType::StringType() {
+}
+StringType::StringType(const std::string& value) : value(value) {
+}
+StringType::~StringType() {
+}
+
+std::shared_ptr<DataType> IntType::operator+(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<FloatType>(FloatType(this->value + right->value));
+  }
+  return std::make_shared<IntType>(IntType(this->value + right->value));
+}
+
+std::shared_ptr<DataType> IntType::operator-(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<FloatType>(FloatType(this->value - right->value));
+  }
+  return std::make_shared<IntType>(IntType(this->value - right->value));
+}
+
+std::shared_ptr<DataType> IntType::operator*(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<FloatType>(FloatType(this->value * right->value));
+  }
+  return std::make_shared<IntType>(IntType(this->value * right->value));
+}
+
+std::shared_ptr<DataType> IntType::operator/(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<FloatType>(FloatType(this->value / right->value));
+  }
+  return std::make_shared<IntType>(IntType(this->value / right->value));
+}
+
+std::shared_ptr<DataType> IntType::operator+() {
+  return std::make_shared<IntType>(IntType(this->value));
+}
+
+std::shared_ptr<DataType> IntType::operator-() {
+  return std::make_shared<IntType>(IntType(-this->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator+(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+    return std::make_shared<FloatType>(FloatType(this->value + right->value));
+  }
+  return std::make_shared<FloatType>(FloatType(this->value + right->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator-(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+  }
+  return std::make_shared<FloatType>(FloatType(this->value - right->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator*(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+  }
+  return std::make_shared<FloatType>(FloatType(this->value * right->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator/(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+  }
+  return std::make_shared<FloatType>(FloatType(this->value / right->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator+() {
+  return std::make_shared<FloatType>(FloatType(this->value));
+}
+
+std::shared_ptr<DataType> FloatType::operator-() {
+  return std::make_shared<FloatType>(FloatType(-this->value));
+}
+
+std::shared_ptr<DataType> StringType::operator+(DataType& other) {
+  StringType* right = dynamic_cast<StringType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<StringType>(StringType(this->value + right->value));
+}
+
+std::shared_ptr<DataType> StringType::operator-(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator*(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator/(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator+() {
+}
+
+std::shared_ptr<DataType> StringType::operator-() {
+}
