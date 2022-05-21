@@ -1,7 +1,8 @@
 #include "ScopedSymbolTable.h"
-#include "TokenType.h"
 
 #include <vector>
+
+#include "TokenType.h"
 
 SymbolWithScope::SymbolWithScope(std::shared_ptr<Symbol> symbol,
                                  std::string& scope_name,
@@ -24,10 +25,13 @@ ScopedSymbolTable::ScopedSymbolTable(
 }
 
 void ScopedSymbolTable::initialize() {
-  std::string types[] = {"INTEGER", "REAL", "STRING"};
+  std::pair<std::string, TokenType> types[] = {{"INTEGER", TokenType::INTEGER},
+                                               {"REAL", TokenType::REAL},
+                                               {"STRING", TokenType::STRING}};
 
   for (int i = 0; i < 3; i++) {
-    add(std::make_shared<BuiltInTypeSymbol>(BuiltInTypeSymbol(types[i])));
+    add(std::make_shared<BuiltInTypeSymbol>(
+        BuiltInTypeSymbol(types[i].first, types[i].second)));
   }
 }
 

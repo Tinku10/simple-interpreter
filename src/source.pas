@@ -13,7 +13,7 @@ VAR z : STRING;
    END;
 
 BEGIN
-   x := (a + b ) * 2;
+   x := (a + b ) * 2.5;
    y := 1.1 + 3.2;
    z := "hello" + " strings";
 
@@ -24,6 +24,6 @@ END;
 
 BEGIN { Main }
 
-   Alpha(3 + 5, 7);  { procedure call }
+   Alpha(3 + 5, 0);  { procedure call }
 
 END.  { Main }

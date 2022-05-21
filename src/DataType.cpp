@@ -1,5 +1,7 @@
 #include "DataType.h"
 
+#include <iomanip>
+
 DataType::DataType() {
 }
 
@@ -27,7 +29,7 @@ std::ostream& operator<<(std::ostream& cout, std::shared_ptr<DataType> var) {
       cout << right->value;
       return cout;
     }
-    cout << right->value;
+    cout << std::fixed << std::setprecision(2) << right->value;
     return cout;
   }
   cout << right->value;
@@ -60,6 +62,7 @@ std::shared_ptr<DataType> IntType::operator+(DataType& other) {
   if (right == nullptr) {
     FloatType* right = dynamic_cast<FloatType*>(&other);
     if (right == nullptr) {
+      std::invalid_argument("not allowed");
     }
 
     return std::make_shared<FloatType>(FloatType(this->value + right->value));
@@ -111,6 +114,19 @@ std::shared_ptr<DataType> IntType::operator-() {
   return std::make_shared<IntType>(IntType(-this->value));
 }
 
+std::shared_ptr<DataType> IntType::operator=(DataType& other) {
+  std::cout << "Called--------------------------\n";
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<IntType>(IntType((int)right->value));
+  }
+  return std::make_shared<IntType>(IntType((int)right->value));
+}
+
 std::shared_ptr<DataType> FloatType::operator+(DataType& other) {
   IntType* right = dynamic_cast<IntType*>(&other);
   if (right == nullptr) {
@@ -160,6 +176,18 @@ std::shared_ptr<DataType> FloatType::operator-() {
   return std::make_shared<FloatType>(FloatType(-this->value));
 }
 
+std::shared_ptr<DataType> FloatType::operator=(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+    FloatType* right = dynamic_cast<FloatType*>(&other);
+    if (right == nullptr) {
+    }
+
+    return std::make_shared<FloatType>(FloatType(right->value));
+  }
+  return std::make_shared<FloatType>(FloatType((float)right->value));
+}
+
 std::shared_ptr<DataType> StringType::operator+(DataType& other) {
   StringType* right = dynamic_cast<StringType*>(&other);
   if (right == nullptr) {
@@ -180,4 +208,12 @@ std::shared_ptr<DataType> StringType::operator+() {
 }
 
 std::shared_ptr<DataType> StringType::operator-() {
+}
+
+std::shared_ptr<DataType> StringType::operator=(DataType& other) {
+  StringType* right = dynamic_cast<StringType*>(&other);
+  if (right == nullptr) {
+  }
+
+  return std::make_shared<StringType>(StringType(right->value));
 }

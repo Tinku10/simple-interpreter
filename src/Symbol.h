@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 
+#include "TokenType.h"
+
 class Node;
 
 class Symbol {
@@ -18,7 +20,9 @@ class Symbol {
 
 class BuiltInTypeSymbol : public Symbol {
  public:
-  BuiltInTypeSymbol(std::string& name);
+  TokenType datatype;
+
+  BuiltInTypeSymbol(std::string& name, TokenType datatype);
   ~BuiltInTypeSymbol() override;
 
   friend std::ostream& operator<<(std::ostream& cout,

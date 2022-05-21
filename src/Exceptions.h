@@ -9,7 +9,8 @@ enum struct ErrorCode {
   DUPLICATE_IDENTIFIER,
   IDENTIFIER_NOT_FOUND,
   UNKNOWN_CHAR,
-  PEEK_PAST_LENGTH
+  PEEK_PAST_LENGTH,
+  UNSUPPORTED_OP_ON_TYPES
 };
 
 class Exception : public std::exception {

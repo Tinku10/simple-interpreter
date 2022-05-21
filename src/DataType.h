@@ -13,10 +13,18 @@ class DataType {
   virtual std::shared_ptr<DataType> operator*(DataType& other) = 0;
   virtual std::shared_ptr<DataType> operator+() = 0;
   virtual std::shared_ptr<DataType> operator-() = 0;
-  void error(const std::string& left, const std::string& op, const std::string& right);
+  virtual std::shared_ptr<DataType> operator=(DataType& other) = 0;
+  void error(const std::string& left,
+             const std::string& op,
+             const std::string& right);
 
-  friend std::ostream& operator<<(std::ostream& cout, std::shared_ptr<DataType> var);
+  friend std::ostream& operator<<(std::ostream& cout,
+                                  std::shared_ptr<DataType> var);
 };
+
+class IntType;
+class FloatType;
+class StringType;
 
 class IntType : public DataType {
  public:
@@ -31,6 +39,7 @@ class IntType : public DataType {
   std::shared_ptr<DataType> operator*(DataType& other) override;
   std::shared_ptr<DataType> operator+() override;
   std::shared_ptr<DataType> operator-() override;
+  std::shared_ptr<DataType> operator=(DataType& other) override;
 };
 
 class FloatType : public DataType {
@@ -45,6 +54,7 @@ class FloatType : public DataType {
   std::shared_ptr<DataType> operator*(DataType& other) override;
   std::shared_ptr<DataType> operator+() override;
   std::shared_ptr<DataType> operator-() override;
+  std::shared_ptr<DataType> operator=(DataType& other) override;
 };
 
 class StringType : public DataType {
@@ -59,4 +69,5 @@ class StringType : public DataType {
   std::shared_ptr<DataType> operator*(DataType& other) override;
   std::shared_ptr<DataType> operator+() override;
   std::shared_ptr<DataType> operator-() override;
+  std::shared_ptr<DataType> operator=(DataType& other) override;
 };

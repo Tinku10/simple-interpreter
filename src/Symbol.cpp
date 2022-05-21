@@ -17,7 +17,8 @@ std::ostream& operator<<(std::ostream& cout, Symbol& node) {
   return cout;
 }
 
-BuiltInTypeSymbol::BuiltInTypeSymbol(std::string& name) : Symbol(name) {
+BuiltInTypeSymbol::BuiltInTypeSymbol(std::string& name, TokenType datatype)
+    : Symbol(name), datatype(datatype) {
 }
 
 BuiltInTypeSymbol::~BuiltInTypeSymbol() {

@@ -9,6 +9,7 @@
 class NodeVisitor;
 class SymbolTableVisitor;
 class SourceToSourceCompilerVisitor;
+class TypeCheckerVisitor;
 
 class Node {
  public:
@@ -16,6 +17,7 @@ class Node {
   virtual void accept(NodeVisitor& v) = 0;
   virtual void accept(SymbolTableVisitor& v) = 0;
   virtual void accept(SourceToSourceCompilerVisitor& v) = 0;
+  virtual void accept(TypeCheckerVisitor& v) = 0;
 };
 
 class BinaryNode : public Node {
@@ -31,6 +33,7 @@ class BinaryNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class UnaryNode : public Node {
@@ -42,6 +45,7 @@ class UnaryNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class AssignNode : public Node {
@@ -50,12 +54,15 @@ class AssignNode : public Node {
   Token token;
   std::shared_ptr<Node> right;
 
+  TokenType left_type;
+
   AssignNode(std::shared_ptr<Node> left,
              Token token,
              std::shared_ptr<Node> right);
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class VarNode : public Node {
@@ -67,6 +74,7 @@ class VarNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class LiteralNode : public Node {
@@ -77,6 +85,7 @@ class LiteralNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class CompoundNode : public Node {
@@ -88,6 +97,7 @@ class CompoundNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class ProgramNode : public Node {
@@ -99,6 +109,7 @@ class ProgramNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class BlockNode : public Node {
@@ -111,6 +122,7 @@ class BlockNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class VarDeclNode : public Node {
@@ -122,6 +134,7 @@ class VarDeclNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class ProcedureDeclNode : public Node {
@@ -136,6 +149,7 @@ class ProcedureDeclNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class ProcedureCallNode : public Node {
@@ -151,6 +165,7 @@ class ProcedureCallNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class ParamsNode : public Node {
@@ -162,6 +177,7 @@ class ParamsNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class TypeNode : public Node {
@@ -172,6 +188,7 @@ class TypeNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class NoOpNode : public Node {
@@ -179,6 +196,7 @@ class NoOpNode : public Node {
   void accept(NodeVisitor& v) override;
   void accept(SymbolTableVisitor& v) override;
   void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
 };
 
 class Visitor {
@@ -206,6 +224,8 @@ class NodeVisitor : public Visitor {
   CallStack callstack;
 
   NodeVisitor();
+
+  std::shared_ptr<DataType> implicit_cast(std::shared_ptr<DataType> current, TokenType& type);
 
   void visit(BinaryNode& node) override;
   void visit(UnaryNode& node) override;
@@ -273,4 +293,30 @@ class SourceToSourceCompilerVisitor : public Visitor {
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
+};
+
+class TypeCheckerVisitor : public Visitor {
+ public:
+  TokenType literal_type;
+  std::shared_ptr<ScopedSymbolTable> current_scope;
+
+  TypeCheckerVisitor();
+
+  TokenType typecheck(TokenType& left, Token& op, TokenType& right);
+  void visit(BinaryNode& node) override;
+  void visit(UnaryNode& node) override;
+  void visit(AssignNode& node) override;
+  void visit(LiteralNode& node) override;
+  void visit(VarNode& node) override;
+  void visit(CompoundNode& node) override;
+  void visit(ProgramNode& node) override;
+  void visit(BlockNode& node) override;
+  void visit(VarDeclNode& node) override;
+  void visit(ProcedureDeclNode& node) override;
+  void visit(ProcedureCallNode& node) override;
+  void visit(ParamsNode& node) override;
+  void visit(TypeNode& node) override;
+  void visit(NoOpNode& node) override;
+
+  Exception error(ErrorCode code, Token& token);
 };
