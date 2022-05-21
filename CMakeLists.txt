@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
   src/Exceptions.cpp
   src/CallStack.cpp
   src/DataType.cpp
+  src/TypeCheckerVisitor.cpp
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")

@@ -119,6 +119,29 @@ void NoOpNode::accept(NodeVisitor& v) {
 NodeVisitor::NodeVisitor() : callstack(CallStack()) {
 }
 
+std::shared_ptr<DataType> NodeVisitor::implicit_cast(
+    std::shared_ptr<DataType> current,
+    TokenType& type) {
+  if (type == TokenType::REAL) {
+    std::shared_ptr<IntType> right
+        = std::dynamic_pointer_cast<IntType>(current);
+    if (right != nullptr) {
+      return std::make_shared<FloatType>((float)right->value);
+    }
+    return current;
+  } else if (type == TokenType::INTEGER) {
+    std::shared_ptr<FloatType> right
+        = std::dynamic_pointer_cast<FloatType>(current);
+    if (right != nullptr) {
+      return std::make_shared<IntType>((int)right->value);
+    }
+
+    return current;
+  }
+
+  return current;
+}
+
 void NodeVisitor::visit(BinaryNode& node) {
   node.left->accept(*this);
   std::shared_ptr<DataType> left = value;
@@ -151,15 +174,15 @@ void NodeVisitor::visit(VarNode& node) {
 }
 
 void NodeVisitor::visit(AssignNode& node) {
-  std::shared_ptr<VarNode> left_node = std::dynamic_pointer_cast<VarNode>(node.left);
+  std::shared_ptr<VarNode> left_node
+      = std::dynamic_pointer_cast<VarNode>(node.left);
   std::string left = left_node->token.value;
 
   node.right->accept(*this);
-  
+
   std::shared_ptr<DataType> right = value;
 
-  callstack.top()->add(left, right);
-  /* callstack.cache[left] = right; */
+  callstack.top()->add(left, implicit_cast(right, node.left_type));
 }
 
 void NodeVisitor::visit(LiteralNode& node) {
