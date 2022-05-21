@@ -100,7 +100,10 @@ void SourceToSourceCompilerVisitor::visit(AssignNode& node) {
 }
 
 void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
-  value = node.token.value;
+  if (node.token.type == TokenType::STRING_CONST)
+    value = "\"" + node.token.value + "\"";
+  else
+    value = node.token.value;
 }
 
 void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
@@ -187,7 +190,7 @@ void SourceToSourceCompilerVisitor::visit(ProcedureDeclNode& node) {
 
     uint is_last = node.params.size() - (&child - &node.params[0]) - 1;
 
-    if(is_last) std::cout << "; ";
+    if (is_last) std::cout << "; ";
   }
 
   std::cout << ");\n";
@@ -211,8 +214,8 @@ void SourceToSourceCompilerVisitor::visit(ProcedureCallNode& node) {
 
     std::cout << value;
 
-    bool not_last = node.params.size() - (&child - & node.params[0]) - 1;
-    if(not_last) std::cout << ", ";
+    bool not_last = node.params.size() - (&child - &node.params[0]) - 1;
+    if (not_last) std::cout << ", ";
   }
 
   std::cout << ")";
