@@ -11,15 +11,16 @@
  * parameters_list: parameters, parameters SEMI parameters_list
  * parameters: ID (COMMA ID)* COLON type 
  * variable_declaration: id (COMMA id)* COLON type
- * type: INTEGER | REAL
+ * type: INTEGER | REAL | BOOLEAN
  * compound: begin statement_list end
  * statement_list: statement SEMI statement_list | compound
  * procedure_call_statement: ID LAPREN (expr (COMMA expr)*)? RPAREN 
  * statement: var ASSIGN expr | procedure_call_statement
  * var: id
+ * rel_expr: expr ((< | <= | > | >= | = | <>) expr)+
  * expr: term ((PLUS | MINUS) term)*
  * term: id ((MUL | DIV) id)*
- * id: number | (PLUS | MINUS | BANG)* id | LPAREN expr RPAREN
+ * id: number | (PLUS | MINUS | BANG)* id | LPAREN expr RPAREN | (TRUE | FALSE)
  */
 class Parser {
 public:
@@ -31,6 +32,7 @@ public:
 
   std::shared_ptr<Node> factor();
   std::shared_ptr<Node> term();
+  std::shared_ptr<Node> rel_expr();
   std::shared_ptr<Node> expr();
   std::shared_ptr<Node> var();
   std::shared_ptr<Node> statement();

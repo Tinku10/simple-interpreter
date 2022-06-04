@@ -7,9 +7,11 @@ VAR z : STRING;
 
    PROCEDURE Beta(a : INTEGER; b : INTEGER);
    VAR x : INTEGER;
+   VAR t : BOOLEAN;
    BEGIN
       x := a * 10 + b * 2 + y;
       y := 3.1;
+      t := 1 > (2 - 2);
    END;
 
 BEGIN

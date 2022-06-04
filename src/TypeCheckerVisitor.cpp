@@ -75,6 +75,13 @@ TokenType TypeCheckerVisitor::typecheck(TokenType& left,
         return TokenType::INTEGER;
       else if (op_type == TokenType::EQUAL)
         return left;
+      else if (op_type == TokenType::LESS_THAN
+               || op_type == TokenType::GREATER_THAN
+               || op_type == TokenType::LT_EQUAL
+               || op_type == TokenType::GT_EQUAL
+               || op_type == TokenType::NOT_EQUAL
+               || op_type == TokenType::EQUAL_EQUAL)
+        return TokenType::BOOLEAN;
       throw error(ErrorCode::UNEXPECTED_TOKEN, op);
     } else if (right == TokenType::REAL_CONST || right == TokenType::REAL) {
       if (op_type == TokenType::PLUS || op_type == TokenType::MINUS
@@ -102,6 +109,11 @@ TokenType TypeCheckerVisitor::typecheck(TokenType& left,
       throw error(ErrorCode::UNEXPECTED_TOKEN, op);
     } else
       throw error(ErrorCode::UNSUPPORTED_OP_ON_TYPES, op);
+  } else if (left == TokenType::BOOLEAN || left == TokenType::TRUE) {
+    if (right == TokenType::TRUE || right == TokenType::FALSE || right == TokenType::BOOLEAN) {
+      return TokenType::BOOLEAN;
+    }
+    throw error(ErrorCode::UNEXPECTED_TOKEN, op);
   } else if (left == TokenType::STRING_CONST || left == TokenType::STRING) {
     if (right == TokenType::STRING_CONST || right == TokenType::STRING) {
       if (op_type == TokenType::PLUS)
@@ -123,7 +135,7 @@ void TypeCheckerVisitor::visit(BinaryNode& node) {
   node.right->accept(*this);
   TokenType right = literal_type;
 
-  typecheck(left, node.token, right);
+  literal_type = typecheck(left, node.token, right);
 }
 
 void TypeCheckerVisitor::visit(UnaryNode& node) {
@@ -256,7 +268,7 @@ Exception TypeCheckerVisitor::error(ErrorCode code, Token& token) {
     default: msg = "unknown error\n";
   }
 
-  msg = "type error at column" + std::to_string(token.start) + " line"
-        + std::to_string(token.line) + msg;
+  msg = "type error " + token.value + " " " at column " + std::to_string(token.start) + " line "
+        + std::to_string(token.line) + " " + msg;
   throw Exception(code, msg);
 }

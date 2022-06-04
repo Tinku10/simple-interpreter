@@ -14,7 +14,9 @@ void Parser::eat(TokenType type) {
 std::shared_ptr<Node> Parser::factor() {
   if (current_token.type == TokenType::INTEGER_CONST
       || current_token.type == TokenType::REAL_CONST
-      || current_token.type == TokenType::STRING_CONST) {
+      || current_token.type == TokenType::STRING_CONST
+      || current_token.type == TokenType::TRUE
+      || current_token.type == TokenType::FALSE) {
     Token token = current_token;
     eat(current_token.type);
     return std::make_shared<LiteralNode>(LiteralNode(token));
@@ -35,7 +37,7 @@ std::shared_ptr<Node> Parser::factor() {
 
   if (current_token.type == TokenType::L_PAREN) {
     eat(TokenType::L_PAREN);
-    std::shared_ptr<Node> node = expr();
+    std::shared_ptr<Node> node = rel_expr();
     eat(TokenType::R_PAREN);
 
     return node;
@@ -71,6 +73,24 @@ std::shared_ptr<Node> Parser::expr() {
   return left;
 }
 
+std::shared_ptr<Node> Parser::rel_expr() {
+  std::shared_ptr<Node> left = expr();
+
+  while (current_token.type == TokenType::LESS_THAN
+           || current_token.type == TokenType::GREATER_THAN
+           || current_token.type == TokenType::LT_EQUAL
+           || current_token.type == TokenType::GT_EQUAL
+           || current_token.type == TokenType::EQUAL_EQUAL
+           || current_token.type == TokenType::NOT_EQUAL) {
+      Token token = current_token;
+      eat(current_token.type);
+      left = std::make_shared<BinaryNode>(left, token, expr());
+
+  }
+
+  return left;
+}
+
 std::shared_ptr<Node> Parser::statement() {
   if (current_token.type == TokenType::BEGIN) {
     return compound();
@@ -86,7 +106,7 @@ std::shared_ptr<Node> Parser::statement() {
     Token token = current_token;
     eat(TokenType::EQUAL);
 
-    return std::make_shared<AssignNode>(AssignNode(left, token, expr()));
+    return std::make_shared<AssignNode>(AssignNode(left, token, rel_expr()));
   }
 
   return std::make_shared<NoOpNode>(NoOpNode());
@@ -104,11 +124,11 @@ std::shared_ptr<Node> Parser::procedure_call_statement() {
   std::vector<std::shared_ptr<Node>> v;
 
   if (current_token.type != TokenType::R_PAREN) {
-    v.emplace_back(expr());
+    v.emplace_back(rel_expr());
 
     while (current_token.type == TokenType::COMMA) {
       eat(current_token.type);
-      v.emplace_back(expr());
+      v.emplace_back(rel_expr());
     }
   }
 
@@ -145,6 +165,8 @@ std::shared_ptr<Node> Parser::type() {
     eat(TokenType::REAL);
   } else if (current_token.type == TokenType::STRING) {
     eat(TokenType::STRING);
+  } else if (current_token.type == TokenType::BOOLEAN) {
+    eat(TokenType::BOOLEAN);
   } else {
     throw error(ErrorCode::UNEXPECTED_TOKEN);
     /* std::invalid_argument("Invalid type"); */

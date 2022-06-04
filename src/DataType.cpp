@@ -24,7 +24,13 @@ std::ostream& operator<<(std::ostream& cout, std::shared_ptr<DataType> var) {
       std::shared_ptr<StringType> right
           = std::dynamic_pointer_cast<StringType>(var);
       if (right == nullptr) {
-        throw std::invalid_argument("unknown type to print");
+        std::shared_ptr<BooleanType> right
+            = std::dynamic_pointer_cast<BooleanType>(var);
+        if (right == nullptr) {
+          throw std::invalid_argument("unknown type to print");
+        }
+        cout << right->value;
+        return cout;
       }
       cout << right->value;
       return cout;
@@ -48,6 +54,13 @@ FloatType::FloatType() {
 FloatType::FloatType(float value) : value(value) {
 }
 FloatType::~FloatType() {
+}
+
+BooleanType::BooleanType() {
+}
+BooleanType::BooleanType(bool value) : value(value) {
+}
+BooleanType::~BooleanType() {
 }
 
 StringType::StringType() {
@@ -104,6 +117,48 @@ std::shared_ptr<DataType> IntType::operator/(DataType& other) {
     return std::make_shared<FloatType>(FloatType(this->value / right->value));
   }
   return std::make_shared<IntType>(IntType(this->value / right->value));
+}
+
+std::shared_ptr<DataType> IntType::operator>(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value > right->value);
+}
+
+std::shared_ptr<DataType> IntType::operator<(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value < right->value);
+}
+
+std::shared_ptr<DataType> IntType::operator>=(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value >= right->value);
+}
+
+std::shared_ptr<DataType> IntType::operator<=(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value <= right->value);
+}
+
+std::shared_ptr<DataType> IntType::operator!=(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value != right->value);
+}
+
+std::shared_ptr<DataType> IntType::operator==(DataType& other) {
+  IntType* right = dynamic_cast<IntType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value == right->value);
 }
 
 std::shared_ptr<DataType> IntType::operator+() {
@@ -168,6 +223,48 @@ std::shared_ptr<DataType> FloatType::operator/(DataType& other) {
   return std::make_shared<FloatType>(FloatType(this->value / right->value));
 }
 
+std::shared_ptr<DataType> FloatType::operator>(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value > right->value);
+}
+
+std::shared_ptr<DataType> FloatType::operator<(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value < right->value);
+}
+
+std::shared_ptr<DataType> FloatType::operator>=(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value >= right->value);
+}
+
+std::shared_ptr<DataType> FloatType::operator<=(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value <= right->value);
+}
+
+std::shared_ptr<DataType> FloatType::operator!=(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value != right->value);
+}
+
+std::shared_ptr<DataType> FloatType::operator==(DataType& other) {
+  FloatType* right = dynamic_cast<FloatType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value == right->value);
+}
+
 std::shared_ptr<DataType> FloatType::operator+() {
   return std::make_shared<FloatType>(FloatType(this->value));
 }
@@ -188,6 +285,74 @@ std::shared_ptr<DataType> FloatType::operator=(DataType& other) {
   return std::make_shared<FloatType>(FloatType((float)right->value));
 }
 
+
+std::shared_ptr<DataType> BooleanType::operator+(DataType& other) {
+}
+
+std::shared_ptr<DataType> BooleanType::operator-(DataType& other) {
+}
+
+std::shared_ptr<DataType> BooleanType::operator*(DataType& other) {
+}
+
+std::shared_ptr<DataType> BooleanType::operator/(DataType& other) {
+}
+
+std::shared_ptr<DataType> BooleanType::operator+() {
+}
+
+std::shared_ptr<DataType> BooleanType::operator-() {
+}
+
+std::shared_ptr<DataType> BooleanType::operator>(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value > right->value);
+}
+
+std::shared_ptr<DataType> BooleanType::operator<(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value < right->value);
+}
+
+std::shared_ptr<DataType> BooleanType::operator>=(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value >= right->value);
+}
+
+std::shared_ptr<DataType> BooleanType::operator<=(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value <= right->value);
+}
+
+std::shared_ptr<DataType> BooleanType::operator!=(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value != right->value);
+}
+
+std::shared_ptr<DataType> BooleanType::operator==(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+  return std::make_shared<BooleanType>(this->value == right->value);
+}
+std::shared_ptr<DataType> BooleanType::operator=(DataType& other) {
+  BooleanType* right = dynamic_cast<BooleanType*>(&other);
+  if (right == nullptr) {
+  }
+
+  return std::make_shared<BooleanType>(BooleanType(right->value));
+}
+
 std::shared_ptr<DataType> StringType::operator+(DataType& other) {
   StringType* right = dynamic_cast<StringType*>(&other);
   if (right == nullptr) {
@@ -202,6 +367,24 @@ std::shared_ptr<DataType> StringType::operator*(DataType& other) {
 }
 
 std::shared_ptr<DataType> StringType::operator/(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator>(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator<(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator>=(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator<=(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator!=(DataType& other) {
+}
+
+std::shared_ptr<DataType> StringType::operator==(DataType& other) {
 }
 
 std::shared_ptr<DataType> StringType::operator+() {

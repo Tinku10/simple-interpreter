@@ -154,6 +154,12 @@ void NodeVisitor::visit(BinaryNode& node) {
     case TokenType::MULTIPLY: value = *left * *right; break;
     case TokenType::INT_DIV: value = *left / *right; break;
     case TokenType::FLOAT_DIV: value = *left / *right; break;
+    case TokenType::GREATER_THAN: value = *left > *right; break;
+    case TokenType::LESS_THAN: value = *left < *right; break;
+    case TokenType::GT_EQUAL: value = *left >= *right; break;
+    case TokenType::LT_EQUAL: value = *left <= *right; break;
+    case TokenType::EQUAL_EQUAL: value = *left == *right; break;
+    case TokenType::NOT_EQUAL: value = *left != *right; break;
     default: throw std::invalid_argument("Invalid binary operator");
   }
 }
@@ -192,6 +198,12 @@ void NodeVisitor::visit(LiteralNode& node) {
       break;
     case TokenType::REAL_CONST:
       value = std::make_shared<FloatType>(stof(node.token.value));
+      break;
+    case TokenType::TRUE:
+      value = std::make_shared<BooleanType>(true);
+      break;
+    case TokenType::FALSE:
+      value = std::make_shared<BooleanType>(false);
       break;
     case TokenType::STRING_CONST:
       value = std::make_shared<StringType>(node.token.value);

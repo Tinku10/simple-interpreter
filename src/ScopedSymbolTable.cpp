@@ -27,9 +27,10 @@ ScopedSymbolTable::ScopedSymbolTable(
 void ScopedSymbolTable::initialize() {
   std::pair<std::string, TokenType> types[] = {{"INTEGER", TokenType::INTEGER},
                                                {"REAL", TokenType::REAL},
-                                               {"STRING", TokenType::STRING}};
+                                               {"STRING", TokenType::STRING},
+                                               {"BOOLEAN", TokenType::BOOLEAN}};
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     add(std::make_shared<BuiltInTypeSymbol>(
         BuiltInTypeSymbol(types[i].first, types[i].second)));
   }
