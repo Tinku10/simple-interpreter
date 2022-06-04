@@ -4,7 +4,9 @@ std::unordered_map<std::string, TokenType> reserved_keywords
     = {{"BEGIN", TokenType::BEGIN}, {"END", TokenType::END},
        {"VAR", TokenType::VAR},     {"PROGRAM", TokenType::PROGRAM},
        {"DIV", TokenType::INT_DIV}, {"INTEGER", TokenType::INTEGER},
-       {"REAL", TokenType::REAL},   {"PROCEDURE", TokenType::PROCEDURE},
+       {"REAL", TokenType::REAL},   {"BOOLEAN", TokenType::BOOLEAN},
+       {"TRUE", TokenType::TRUE}, {"FALSE", TokenType::FALSE},
+       {"PROCEDURE", TokenType::PROCEDURE},
        {"STRING", TokenType::STRING}};
 
 Lexer::Lexer(std::string& source) : source(source), line(0), col(0) {
@@ -63,14 +65,19 @@ Token Lexer::number() {
                line);
 }
 
-std::string Lexer::id() {
+Token Lexer::id() {
+  uint start = col;
+
   std::string result = "";
   while (index < source.length() && isalnum(source[index])) {
     result += source[index];
     advance();
   }
 
-  return result;
+  if (reserved_keywords.count(result))
+    return Token(reserved_keywords[result], std::move(result),
+                 start, index, line);
+  return Token(TokenType::ID, std::move(result), start, index, line);
 }
 
 std::string Lexer::string() {
@@ -101,13 +108,6 @@ Token Lexer::add_token(TokenType type) {
   switch (type) {
     case TokenType::QUOTES:
       return Token(TokenType::STRING_CONST, string(), start + 1, index - 1, line);
-    case TokenType::ID: {
-      std::string identifier = id();
-      if (reserved_keywords.count(identifier))
-        return Token(reserved_keywords[identifier], std::move(identifier),
-                     start, index, line);
-      return Token(type, std::move(identifier), start, index, line);
-    }
     case TokenType::PLUS:
       advance();
       return Token(type, "+", start, start + 1, line);
@@ -193,7 +193,7 @@ Token Lexer::get_next_token() {
 
   curr = source[index];
 
-  if (isalnum(curr)) return add_token(TokenType::ID);
+  if (isalnum(curr)) return id();
 
   curr = source[index];
 

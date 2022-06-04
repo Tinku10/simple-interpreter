@@ -30,9 +30,12 @@ enum struct TokenType {
   STRING,
   INTEGER,
   REAL,
+  BOOLEAN,
   INTEGER_CONST,
   REAL_CONST,
   STRING_CONST,
+  TRUE,
+  FALSE,
 
   IF,
   ELSE,

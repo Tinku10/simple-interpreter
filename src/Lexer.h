@@ -24,7 +24,7 @@ public:
 
   std::string string();
 
-  std::string id();
+  Token id();
 
   Token get_next_token();
 
