@@ -6,8 +6,8 @@ std::unordered_map<std::string, TokenType> reserved_keywords
        {"DIV", TokenType::INT_DIV}, {"INTEGER", TokenType::INTEGER},
        {"REAL", TokenType::REAL},   {"BOOLEAN", TokenType::BOOLEAN},
        {"TRUE", TokenType::TRUE}, {"FALSE", TokenType::FALSE},
-       {"PROCEDURE", TokenType::PROCEDURE},
-       {"STRING", TokenType::STRING}};
+       {"PROCEDURE", TokenType::PROCEDURE}, {"STRING", TokenType::STRING},
+       {"IF", TokenType::IF}, {"ELSE", TokenType::ELSE}, {"THEN", TokenType::THEN}};
 
 Lexer::Lexer(std::string& source) : source(source), line(0), col(0) {
 }

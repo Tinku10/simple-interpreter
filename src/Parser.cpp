@@ -100,6 +100,10 @@ std::shared_ptr<Node> Parser::statement() {
     return procedure_call_statement();
   }
 
+  if (current_token.type == TokenType::IF) {
+    return if_statement();
+  }
+
   if (current_token.type == TokenType::ID) {
     std::shared_ptr<Node> left = factor();
 
@@ -110,6 +114,28 @@ std::shared_ptr<Node> Parser::statement() {
   }
 
   return std::make_shared<NoOpNode>(NoOpNode());
+}
+
+std::shared_ptr<Node> Parser::if_statement() {
+  std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>>> v;
+
+  Token token = current_token;
+
+  eat(TokenType::IF);
+
+  std::shared_ptr<Node> expr = rel_expr();
+
+  eat(TokenType::THEN);
+
+  v.emplace_back(std::make_pair(expr, compound()));
+
+  std::cout << current_token;
+  if (current_token.type == TokenType::ELSE) {
+    eat(current_token.type);
+    v.emplace_back(std::make_pair(nullptr, compound()));
+  }
+
+  return std::make_shared<IfStatementNode>(IfStatementNode(token, v));
 }
 
 std::shared_ptr<Node> Parser::procedure_call_statement() {

@@ -53,6 +53,12 @@ ProcedureCallNode::ProcedureCallNode(Token& token,
     : token(token), name(name), params(params) {
 }
 
+IfStatementNode::IfStatementNode(
+    Token& token,
+    std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>>>& block)
+    : token(token), block(block) {
+}
+
 ParamsNode::ParamsNode(std::shared_ptr<Node> var, std::shared_ptr<Node> type)
     : var(var), type(type) {
 }
@@ -101,6 +107,10 @@ void ProcedureDeclNode::accept(NodeVisitor& v) {
 }
 
 void ProcedureCallNode::accept(NodeVisitor& v) {
+  v.visit(*this);
+}
+
+void IfStatementNode::accept(NodeVisitor& v) {
   v.visit(*this);
 }
 
@@ -199,12 +209,8 @@ void NodeVisitor::visit(LiteralNode& node) {
     case TokenType::REAL_CONST:
       value = std::make_shared<FloatType>(stof(node.token.value));
       break;
-    case TokenType::TRUE:
-      value = std::make_shared<BooleanType>(true);
-      break;
-    case TokenType::FALSE:
-      value = std::make_shared<BooleanType>(false);
-      break;
+    case TokenType::TRUE: value = std::make_shared<BooleanType>(true); break;
+    case TokenType::FALSE: value = std::make_shared<BooleanType>(false); break;
     case TokenType::STRING_CONST:
       value = std::make_shared<StringType>(node.token.value);
       break;
@@ -267,6 +273,29 @@ void NodeVisitor::visit(ProcedureCallNode& node) {
   std::cout << callstack << "\n";
 
   callstack.pop();
+}
+
+void NodeVisitor::visit(IfStatementNode& node) {
+  bool matched = false;
+
+  for (auto stat : node.block) {
+    if (stat.first) {
+      stat.first->accept(*this);
+      std::shared_ptr<BooleanType> cond
+          = std::dynamic_pointer_cast<BooleanType>(value);
+      if (cond == nullptr) {
+        return;
+      }
+
+      matched = cond->value;
+    }
+
+    if (matched) {
+      stat.second->accept(*this);
+      break;
+    }
+  }
+
 }
 
 void NodeVisitor::visit(ParamsNode& node) {

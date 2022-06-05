@@ -46,6 +46,10 @@ void ProcedureCallNode::accept(TypeCheckerVisitor& v) {
   v.visit(*this);
 }
 
+void IfStatementNode::accept(TypeCheckerVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(TypeCheckerVisitor& v) {
   v.visit(*this);
 }
@@ -243,6 +247,15 @@ void TypeCheckerVisitor::visit(ProcedureCallNode& node) {
 
   for (auto& child : node.params) {
     child->accept(*this);
+  }
+}
+
+void TypeCheckerVisitor::visit(IfStatementNode& node) {
+  for (auto stat: node.block) {
+    if (stat.first) {
+      stat.first->accept(*this);
+    }
+    stat.second->accept(*this);
   }
 }
 

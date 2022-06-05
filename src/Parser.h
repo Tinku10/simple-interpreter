@@ -15,7 +15,8 @@
  * compound: begin statement_list end
  * statement_list: statement SEMI statement_list | compound
  * procedure_call_statement: ID LAPREN (expr (COMMA expr)*)? RPAREN 
- * statement: var ASSIGN expr | procedure_call_statement
+ * if_statement: if rel_expr then compound (else compound)?
+ * statement: var ASSIGN expr | procedure_call_statement | if statement
  * var: id
  * rel_expr: expr ((< | <= | > | >= | = | <>) expr)+
  * expr: term ((PLUS | MINUS) term)*
@@ -37,6 +38,7 @@ public:
   std::shared_ptr<Node> var();
   std::shared_ptr<Node> statement();
   std::shared_ptr<Node> procedure_call_statement();
+  std::shared_ptr<Node> if_statement();
   std::shared_ptr<Node> statement_list();
   std::shared_ptr<Node> compound();
   std::shared_ptr<Node> program();

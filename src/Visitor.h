@@ -168,6 +168,21 @@ class ProcedureCallNode : public Node {
   void accept(TypeCheckerVisitor& v) override;
 };
 
+class IfStatementNode : public Node {
+ public:
+  Token token;
+  std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>>> block;
+
+  IfStatementNode(
+      Token& token,
+      std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>>>&
+          block);
+  void accept(NodeVisitor& v) override;
+  void accept(SymbolTableVisitor& v) override;
+  void accept(SourceToSourceCompilerVisitor& v) override;
+  void accept(TypeCheckerVisitor& v) override;
+};
+
 class ParamsNode : public Node {
  public:
   std::shared_ptr<Node> var;
@@ -212,6 +227,7 @@ class Visitor {
   virtual void visit(VarDeclNode& node) = 0;
   virtual void visit(ProcedureDeclNode& node) = 0;
   virtual void visit(ProcedureCallNode& node) = 0;
+  virtual void visit(IfStatementNode& node) = 0;
   virtual void visit(ParamsNode& node) = 0;
   virtual void visit(TypeNode& node) = 0;
   virtual void visit(NoOpNode& node) = 0;
@@ -225,7 +241,8 @@ class NodeVisitor : public Visitor {
 
   NodeVisitor();
 
-  std::shared_ptr<DataType> implicit_cast(std::shared_ptr<DataType> current, TokenType& type);
+  std::shared_ptr<DataType> implicit_cast(std::shared_ptr<DataType> current,
+                                          TokenType& type);
 
   void visit(BinaryNode& node) override;
   void visit(UnaryNode& node) override;
@@ -238,6 +255,7 @@ class NodeVisitor : public Visitor {
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
   void visit(ProcedureCallNode& node) override;
+  void visit(IfStatementNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
@@ -263,6 +281,7 @@ class SymbolTableVisitor : public Visitor {
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
   void visit(ProcedureCallNode& node) override;
+  void visit(IfStatementNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
@@ -290,6 +309,7 @@ class SourceToSourceCompilerVisitor : public Visitor {
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
   void visit(ProcedureCallNode& node) override;
+  void visit(IfStatementNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;
@@ -314,6 +334,7 @@ class TypeCheckerVisitor : public Visitor {
   void visit(VarDeclNode& node) override;
   void visit(ProcedureDeclNode& node) override;
   void visit(ProcedureCallNode& node) override;
+  void visit(IfStatementNode& node) override;
   void visit(ParamsNode& node) override;
   void visit(TypeNode& node) override;
   void visit(NoOpNode& node) override;

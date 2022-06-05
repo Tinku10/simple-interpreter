@@ -42,6 +42,7 @@ enum struct TokenType {
   ELSE_IF,
   FOR,
   WHILE,
+  THEN,
 
   BEGIN,
   END,

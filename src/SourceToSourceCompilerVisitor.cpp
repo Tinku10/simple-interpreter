@@ -46,6 +46,10 @@ void ProcedureCallNode::accept(SourceToSourceCompilerVisitor& v) {
   v.visit(*this);
 }
 
+void IfStatementNode::accept(SourceToSourceCompilerVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(SourceToSourceCompilerVisitor& v) {
   v.visit(*this);
 }
@@ -107,6 +111,9 @@ void SourceToSourceCompilerVisitor::visit(LiteralNode& node) {
 }
 
 void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "BEGIN; {Begin " << current_scope->scope_name << "}\n";
+
   level += 1;
 
   for (auto& child : node.children) {
@@ -114,6 +121,10 @@ void SourceToSourceCompilerVisitor::visit(CompoundNode& node) {
   }
 
   level -= 1;
+
+  std::cout << "\n";
+  std::cout << std::string(level * 2, ' ');
+  std::cout << "END; {End of " << current_scope->scope_name << "}\n";
 }
 
 void SourceToSourceCompilerVisitor::visit(ProgramNode& node) {
@@ -136,11 +147,11 @@ void SourceToSourceCompilerVisitor::visit(BlockNode& node) {
     child->accept(*this);
   }
 
-  std::cout << std::string(level * 2, ' ');
-  std::cout << "BEGIN; {Begin " << current_scope->scope_name << "}\n";
+  /* std::cout << std::string(level * 2, ' '); */
+  /* std::cout << "BEGIN; {Begin " << current_scope->scope_name << "}\n"; */
   node.compound_statement->accept(*this);
-  std::cout << std::string(level * 2, ' ');
-  std::cout << "END; {End of " << current_scope->scope_name << "}\n";
+  /* std::cout << std::string(level * 2, ' '); */
+  /* std::cout << "END; {End of " << current_scope->scope_name << "}\n"; */
 
   level -= 1;
 }
@@ -219,6 +230,29 @@ void SourceToSourceCompilerVisitor::visit(ProcedureCallNode& node) {
   }
 
   std::cout << ")";
+}
+
+void SourceToSourceCompilerVisitor::visit(IfStatementNode& node) {
+  current_scope = std::make_shared<ScopedSymbolTable>(
+      ScopedSymbolTable(std::move(node.token.value),
+                        current_scope->scope_level + 1, current_scope));
+
+  for (auto stat : node.block) {
+    std::cout << std::string(level * 2, ' ');
+    if (stat.first) {
+      std::cout << "if (";
+      stat.first->accept(*this);
+      std::cout << value;
+      std::cout << ") then\n";
+    } else {
+      std::cout << "else\n";
+    }
+    level++;
+    stat.second->accept(*this);
+    level--;
+  }
+
+  current_scope = current_scope->parent_scope;
 }
 
 void SourceToSourceCompilerVisitor::visit(ParamsNode& node) {

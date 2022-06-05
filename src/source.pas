@@ -19,8 +19,16 @@ BEGIN
    y := 1.1 + 3.2;
    z := "hello" + " strings";
 
+   IF (1 < 0) THEN
+   BEGIN
+     x := 0;
+     Beta(x, 0);      { procedure call }
+   END
+   ELSE
+   BEGIN
+     x := 3;
+   END;
 
-   Beta(x, 1.2);      { procedure call }
 
 END;
 

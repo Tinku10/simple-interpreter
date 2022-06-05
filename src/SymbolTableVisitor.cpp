@@ -46,6 +46,10 @@ void ProcedureCallNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
 
+void IfStatementNode::accept(SymbolTableVisitor& v) {
+  v.visit(*this);
+}
+
 void ParamsNode::accept(SymbolTableVisitor& v) {
   v.visit(*this);
 }
@@ -199,6 +203,15 @@ void SymbolTableVisitor::visit(ProcedureCallNode& node) {
 
   for (auto& child : node.params) {
     child->accept(*this);
+  }
+}
+
+void SymbolTableVisitor::visit(IfStatementNode& node) {
+  for (auto stat: node.block) {
+    if (stat.first) {
+      stat.first->accept(*this);
+    }
+    stat.second->accept(*this);
   }
 }
 
